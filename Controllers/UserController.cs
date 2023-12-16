@@ -23,14 +23,19 @@ public class UserController : ControllerBase
     }
 
     [HttpPost("sign-up")]
-    public async Task<IActionResult> Signup([FromBody] LoginData loginData)
+    public IActionResult Signup([FromBody] LoginData loginData)
     {
-        var user = new User(loginData.Username, loginData.Password);
+        (string apiToken, string cookieToken) = Tokens.GenerateToken();
 
-        (string ApiToken, string CookieToken) = Tokens.GenerateToken();
+        var user = new User(loginData.Username, loginData.Password, apiToken, cookieToken);
 
-        var result = await Tokens.ValidateToken(ApiToken);
+        Response.Cookies.Append("cookieToken", cookieToken, new CookieOptions
+        {
+            Secure = true,
+            HttpOnly = true,
+            SameSite = SameSiteMode.Strict
+        });
 
-        return Ok(new { ApiToken, CookieToken, result });
+        return Ok(new { apiToken });
     }
 }

@@ -14,14 +14,14 @@ public class User
     public string CookieToken {get; set;}
     public List<string> OldCookieToken {get; set;}
 
-    public User(string username, string password)
+    public User(string username, string password, string apiToken, string cookieToken)
     {
         var hasher = new PasswordHasher<User>();
         this.Username = username;
         this.Password = hasher.HashPassword(this, password);
-        this.ApiToken = "";
+        this.ApiToken = apiToken;
         this.OldApiTokens = new List<string>();
-        this.CookieToken = "";
+        this.CookieToken = cookieToken;
         this.OldCookieToken = new List<string>();
     }
 }
