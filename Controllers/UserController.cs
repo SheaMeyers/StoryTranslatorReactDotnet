@@ -25,7 +25,7 @@ public class UserController : ControllerBase
     {
         var user = new User(loginData.Username, loginData.Password);
 
-        (string ApiToken, string CookieToken) = await user.GenerateToken();
+        (string ApiToken, string CookieToken) = user.GenerateToken();
 
         var result = await user.ValidateToken(ApiToken);
 
