@@ -1,5 +1,7 @@
+using System.Security.Principal;
 using Microsoft.AspNetCore.Mvc;
 using StoryTranslatorReactDotnet.Models;
+using StoryTranslatorReactDotnet.Helpers;
 
 namespace StoryTranslatorReactDotnet.Controllers;
 
@@ -25,13 +27,10 @@ public class UserController : ControllerBase
     {
         var user = new User(loginData.Username, loginData.Password);
 
-        (string ApiToken, string CookieToken) = user.GenerateToken();
+        (string ApiToken, string CookieToken) = Tokens.GenerateToken();
 
-        var result = await user.ValidateToken(ApiToken);
+        var result = await Tokens.ValidateToken(ApiToken);
 
-        Console.WriteLine(ApiToken);
-        Console.WriteLine(CookieToken);
-
-        return Ok();
+        return Ok(new { ApiToken, CookieToken, result });
     }
 }
