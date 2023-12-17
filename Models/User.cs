@@ -17,7 +17,7 @@ public class User
     public string CookieToken {get; set;}
     public List<string> OldCookieToken {get; set;}
 
-    public User(string username, string password, string apiToken, string cookieToken)
+    public User(string username, string password, string apiToken = "", string cookieToken = "")
     {
         var hasher = new PasswordHasher<User>();
         this.Username = username;

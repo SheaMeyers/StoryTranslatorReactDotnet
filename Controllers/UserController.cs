@@ -6,7 +6,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace StoryTranslatorReactDotnet.Controllers;
 
-public class LoginData 
+public struct LoginData 
 {
     public string Username {get; set;}
     public string Password {get; set;}

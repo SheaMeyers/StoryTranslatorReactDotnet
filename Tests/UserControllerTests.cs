@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using StoryTranslatorReactDotnet.Controllers;
+using StoryTranslatorReactDotnet.Models;
 using Xunit;
 
 namespace StoryTranslatorReactDotnet.Tests;
@@ -11,7 +12,7 @@ public class UserControllerTests : IClassFixture<TestDatabaseFixture>
     public TestDatabaseFixture Fixture { get; }
 
     [Fact]
-    public async Task TestSignUp()
+    public async Task TestSignUpCreatesUser()
     {
         Environment.SetEnvironmentVariable(
             "SecretKey", 
@@ -34,5 +35,25 @@ public class UserControllerTests : IClassFixture<TestDatabaseFixture>
 
         Assert.NotNull(user);
         Assert.NotEqual("password", user.Password);
+        Assert.NotEqual("", user.ApiToken);
+        Assert.NotEqual("", user.CookieToken);
+    }
+
+    [Fact]
+    public async Task TestSignUpFailsWhenUsernameTaken()
+    {
+        var context = Fixture.CreateContext();
+        var user = new User("username2", "password");
+
+        context.Users.Add(user);
+        await context.SaveChangesAsync();
+
+        var controller = new UserController(context);
+        
+        var response = await controller.Signup(new LoginData { Username = "username2", Password = "password" });
+
+        var responseResult = Assert.IsType<BadRequestObjectResult>(response);
+
+        Assert.Equal("Username username2 already taken", responseResult.Value);
     }
 }
