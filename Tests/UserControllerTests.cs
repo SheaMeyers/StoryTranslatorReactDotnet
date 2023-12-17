@@ -11,19 +11,23 @@ public class UserControllerTests : IClassFixture<TestDatabaseFixture>
     public TestDatabaseFixture Fixture { get; }
 
     [Fact]
-    public async Task FakeTest()
+    public async Task TestSignUp()
     {
+        Environment.SetEnvironmentVariable(
+            "SecretKey", 
+            "A really really really long string to act as a secret key for when the token is generated"
+        );
+
         var context = Fixture.CreateContext();
         var controller = new UserController(context);
+        controller.ControllerContext.HttpContext = new DefaultHttpContext();
 
-        var response = controller.Test();
+        var response = await controller.Signup(new LoginData { Username = "username", Password = "password" });
 
         var responseResult = Assert.IsType<OkObjectResult>(response);
 
         var responseValue = responseResult.Value as dynamic;
 
-        Console.WriteLine("-----------");
-        Console.WriteLine("test", responseValue?.test);
-        Console.WriteLine("-----------");
+        Assert.NotNull(responseValue?.apiToken);
     }
 }

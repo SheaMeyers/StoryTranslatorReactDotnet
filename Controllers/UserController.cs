@@ -48,12 +48,4 @@ public class UserController : ControllerBase
 
         return Ok(new { apiToken });
     }
-
-    [HttpPost("test")]
-    public IActionResult Test()
-    {
-        var test = "test";
-        var thing = new { test };
-        return Ok(thing);
-    }
 }
