@@ -2,6 +2,8 @@ using System.Security.Principal;
 using Microsoft.AspNetCore.Mvc;
 using StoryTranslatorReactDotnet.Models;
 using StoryTranslatorReactDotnet.Helpers;
+using StoryTranslatorReactDotnet.Database;
+using System.Data.Common;
 
 namespace StoryTranslatorReactDotnet.Controllers;
 
@@ -16,18 +18,23 @@ public class LoginData
 public class UserController : ControllerBase
 {
     private readonly ILogger<UserController> _logger;
+    private readonly ApplicationDbContext _db;
 
-    public UserController(ILogger<UserController> logger)
+    public UserController(ILogger<UserController> logger, ApplicationDbContext db)
     {
         _logger = logger;
+        _db = db;
     }
 
     [HttpPost("sign-up")]
-    public IActionResult Signup([FromBody] LoginData loginData)
+    public async Task<IActionResult> Signup([FromBody] LoginData loginData)
     {
         (string apiToken, string cookieToken) = Tokens.GenerateToken();
 
         var user = new User(loginData.Username, loginData.Password, apiToken, cookieToken);
+
+        _db.Users.Add(user);
+        await _db.SaveChangesAsync();
 
         Response.Cookies.Append("cookieToken", cookieToken, new CookieOptions
         {

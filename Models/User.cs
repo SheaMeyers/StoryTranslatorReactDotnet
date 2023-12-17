@@ -1,12 +1,15 @@
+using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Identity;
 
 namespace StoryTranslatorReactDotnet.Models;
 
 public class User
 {
+    [Key]
     public Guid Id {get; set;}
     public DateTime Created {get; set;}
     public DateTime Modified {get; set;}
+    public DateTime LastLogin {get; set;}
     public string Username {get; set;}
     public string Password {get; set;}
     public string ApiToken {get; set;}
@@ -23,5 +26,8 @@ public class User
         this.OldApiTokens = new List<string>();
         this.CookieToken = cookieToken;
         this.OldCookieToken = new List<string>();
+        this.Created = DateTime.UtcNow;
+        this.Modified = DateTime.UtcNow;
+        this.LastLogin = DateTime.UtcNow;
     }
 }
