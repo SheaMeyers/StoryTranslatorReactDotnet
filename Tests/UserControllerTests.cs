@@ -16,11 +16,14 @@ public class UserControllerTests : IClassFixture<TestDatabaseFixture>
         var context = Fixture.CreateContext();
         var controller = new UserController(context);
 
-        var result = controller.Test();
+        var response = controller.Test();
 
-        var requestResult = Assert.IsType<OkObjectResult>(result);
+        var responseResult = Assert.IsType<OkObjectResult>(response);
+
+        var responseValue = responseResult.Value as dynamic;
+
         Console.WriteLine("-----------");
-        Console.WriteLine(requestResult.Value);
+        Console.WriteLine("test", responseValue?.test);
         Console.WriteLine("-----------");
     }
 }

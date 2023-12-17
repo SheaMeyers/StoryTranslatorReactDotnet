@@ -53,6 +53,7 @@ public class UserController : ControllerBase
     public IActionResult Test()
     {
         var test = "test";
-        return Ok(new { test });
+        var thing = new { test };
+        return Ok(thing);
     }
 }
