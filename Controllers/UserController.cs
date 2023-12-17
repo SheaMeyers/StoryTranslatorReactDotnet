@@ -17,12 +17,10 @@ public class LoginData
 [Route("[controller]")]
 public class UserController : ControllerBase
 {
-    private readonly ILogger<UserController> _logger;
     private readonly ApplicationDbContext _db;
 
-    public UserController(ILogger<UserController> logger, ApplicationDbContext db)
+    public UserController(ApplicationDbContext db)
     {
-        _logger = logger;
         _db = db;
     }
 
@@ -49,5 +47,12 @@ public class UserController : ControllerBase
         });
 
         return Ok(new { apiToken });
+    }
+
+    [HttpPost("test")]
+    public IActionResult Test()
+    {
+        var test = "test";
+        return Ok(new { test });
     }
 }
