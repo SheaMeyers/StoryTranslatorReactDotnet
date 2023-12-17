@@ -29,6 +29,11 @@ public class UserController : ControllerBase
     [HttpPost("sign-up")]
     public async Task<IActionResult> Signup([FromBody] LoginData loginData)
     {
+        if (!ModelState.IsValid) return BadRequest();
+
+        if (_db.Users.Any(user => user.Username == loginData.Username)) 
+            return BadRequest($"Username {loginData.Username} already taken");
+
         (string apiToken, string cookieToken) = Tokens.GenerateToken();
 
         var user = new User(loginData.Username, loginData.Password, apiToken, cookieToken);
