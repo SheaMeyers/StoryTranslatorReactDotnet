@@ -29,5 +29,10 @@ public class UserControllerTests : IClassFixture<TestDatabaseFixture>
         var responseValue = responseResult.Value as dynamic;
 
         Assert.NotNull(responseValue?.apiToken);
+
+        var user = context.Users.Where(user => user.Username == "username").FirstOrDefault();
+
+        Assert.NotNull(user);
+        Assert.NotEqual("password", user.Password);
     }
 }

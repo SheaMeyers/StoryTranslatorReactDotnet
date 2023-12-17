@@ -1,9 +1,8 @@
-using System.Security.Principal;
 using Microsoft.AspNetCore.Mvc;
 using StoryTranslatorReactDotnet.Models;
 using StoryTranslatorReactDotnet.Helpers;
 using StoryTranslatorReactDotnet.Database;
-using System.Data.Common;
+using System.ComponentModel.DataAnnotations;
 
 namespace StoryTranslatorReactDotnet.Controllers;
 
