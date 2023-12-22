@@ -1,5 +1,6 @@
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using System.Text;
 
 namespace StoryTranslatorReactDotnet.Helpers;
@@ -7,13 +8,15 @@ namespace StoryTranslatorReactDotnet.Helpers;
 public static class Tokens
 {
     private static byte[] keyBytes = Encoding.UTF8.GetBytes(Environment.GetEnvironmentVariable("SecretKey") ?? "");
-    public static (string, string) GenerateToken()
+    public static (string, string) GenerateTokens()
     {
         var key = new SymmetricSecurityKey(keyBytes);
         var cred = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
 
-        var ApiToken = new JwtSecurityToken(expires: DateTime.UtcNow.AddMinutes(10), signingCredentials: cred);
-        var CookieToken = new JwtSecurityToken(expires: DateTime.UtcNow.AddMinutes(10), signingCredentials: cred);
+        var claims = new Claim[] { new Claim("randomId", Guid.NewGuid().ToString()) };
+
+        var ApiToken = new JwtSecurityToken(claims: claims, expires: DateTime.UtcNow.AddMinutes(10), signingCredentials: cred);
+        var CookieToken = new JwtSecurityToken(claims: claims, expires: DateTime.UtcNow.AddMinutes(10), signingCredentials: cred);
 
         var handler = new JwtSecurityTokenHandler();
 

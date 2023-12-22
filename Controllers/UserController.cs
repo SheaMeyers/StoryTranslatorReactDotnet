@@ -3,6 +3,8 @@ using StoryTranslatorReactDotnet.Models;
 using StoryTranslatorReactDotnet.Helpers;
 using StoryTranslatorReactDotnet.Database;
 using Microsoft.AspNetCore.Identity;
+using StoryTranslatorReactDotnet.Services;
+using Microsoft.EntityFrameworkCore;
 
 namespace StoryTranslatorReactDotnet.Controllers;
 
@@ -12,15 +14,23 @@ public struct LoginData
     public string Password {get; set;}
 }
 
+public struct ChangePasswordData
+{
+    public string OldPassword {get; set;}
+    public string NewPassword {get; set;}
+}
+
 [ApiController]
 [Route("[controller]")]
 public class UserController : ControllerBase
 {
     private readonly ApplicationDbContext _db;
+    private readonly UserService _userService;
 
-    public UserController(ApplicationDbContext db)
+    public UserController(ApplicationDbContext db, UserService userService)
     {
         _db = db;
+        _userService = userService;
     }
 
     [HttpPost("sign-up")]
@@ -31,9 +41,9 @@ public class UserController : ControllerBase
         if (_db.Users.Any(user => user.Username == loginData.Username)) 
             return BadRequest($"Username {loginData.Username} already taken");
 
-        (string apiToken, string cookieToken) = Tokens.GenerateToken();
+        (string apiToken, string cookieToken) = Tokens.GenerateTokens();
 
-        var user = new User(loginData.Username, loginData.Password, apiToken, cookieToken);
+        User user = new User(loginData.Username, loginData.Password, apiToken, cookieToken);
 
         _db.Users.Add(user);
         await _db.SaveChangesAsync();
@@ -53,7 +63,7 @@ public class UserController : ControllerBase
     {
         if (!ModelState.IsValid) return BadRequest();
 
-        var user = _db.Users.Where(user => user.Username == loginData.Username).FirstOrDefault();
+        User? user = _db.Users.Where(user => user.Username == loginData.Username).SingleOrDefault();
 
         if (user == null) return Forbid();
 
@@ -61,7 +71,7 @@ public class UserController : ControllerBase
         if (hasher.VerifyHashedPassword(user, user.Password, loginData.Password) == PasswordVerificationResult.Failed)
             return Forbid();
 
-        (string apiToken, string cookieToken) = Tokens.GenerateToken();
+        (string apiToken, string cookieToken) = Tokens.GenerateTokens();
 
         user.ApiToken = apiToken;
         user.CookieToken = cookieToken;
@@ -79,5 +89,53 @@ public class UserController : ControllerBase
         });
 
         return Ok(new { apiToken });
+    }
+
+    [HttpPost("change-password")]
+    public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordData changePasswordData)
+    {
+        string? cookieToken = Request.Cookies["cookieToken"];
+        string? apiToken = Request.Headers.Authorization;
+
+        if (cookieToken == null || apiToken == null) return Forbid();
+
+        User user;
+        try {
+            user = await _db.Users
+                            .Where(user => 
+                                    user.CookieToken == cookieToken && 
+                                    user.ApiToken == apiToken)
+                            .SingleAsync();
+        } catch (Exception) {
+            try {
+                user = await _db.Users
+                            .Where(user => 
+                                    user.OldCookieToken.Contains(cookieToken) ||
+                                    user.OldApiTokens.Contains(apiToken))
+                            .SingleAsync();
+            } catch (Exception) {
+                return Forbid();
+            }
+            await _userService.Logout(user);
+            return Forbid();
+        }
+        
+        var isCookieTokenValid = await Tokens.ValidateToken(cookieToken);
+        var isApiTokenValid = await Tokens.ValidateToken(apiToken);
+
+        if (isCookieTokenValid == false || isApiTokenValid == false) {
+            await _userService.Logout(user);
+            return Forbid();
+        }
+
+        var hasher = new PasswordHasher<User>();
+        if (hasher.VerifyHashedPassword(user, user.Password, changePasswordData.OldPassword) == PasswordVerificationResult.Failed)
+            return Forbid();
+
+        user.Password = hasher.HashPassword(user, changePasswordData.NewPassword);
+        _db.Users.Update(user);
+        await _db.SaveChangesAsync();
+
+        return Ok();
     }
 }
