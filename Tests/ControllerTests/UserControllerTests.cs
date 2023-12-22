@@ -443,3 +443,90 @@ public class ChangePasswordTests : IClassFixture<TestDatabaseFixture>
         Assert.Equal(PasswordVerificationResult.Success, hasher.VerifyHashedPassword(user, user.Password, "NewPassword"));
     }
 }
+
+public class LogoutTests : IClassFixture<TestDatabaseFixture>
+{
+    public LogoutTests(TestDatabaseFixture fixture) => _fixture = fixture;
+
+    public TestDatabaseFixture _fixture { get; }
+
+    [Fact]
+    public async Task TestChangePasswordReturnsOkWithNoApiToken()
+    {
+        ApplicationDbContext context = _fixture.CreateContext();
+        UserService userService = _fixture.CreateUserService(context);
+
+        UserController controller = new UserController(context, userService);
+
+        DefaultHttpContext defaultContext = new DefaultHttpContext();
+        defaultContext.Request.Headers["Cookie"] = new[] { "cookieToken=fakeCookieToken" };
+        controller.ControllerContext.HttpContext = defaultContext;
+
+        IActionResult? response = await controller.Logout();
+
+        Assert.IsType<OkResult>(response);
+    }
+
+    [Fact]
+    public async Task TestChangePasswordReturnsOkWithNoCookieToken()
+    {
+        ApplicationDbContext context = _fixture.CreateContext();
+        UserService userService = _fixture.CreateUserService(context);
+
+        UserController controller = new UserController(context, userService);
+
+        DefaultHttpContext defaultContext = new DefaultHttpContext();
+        defaultContext.Request.Headers.Authorization = "fakeAuthToken";
+        controller.ControllerContext.HttpContext = defaultContext;
+
+        IActionResult? response = await controller.Logout();
+
+        Assert.IsType<OkResult>(response);
+    }
+
+    [Fact]
+    public async Task TestChangePasswordReturnsOkWhenUserNotFound()
+    {
+        ApplicationDbContext context = _fixture.CreateContext();
+        UserService userService = _fixture.CreateUserService(context);
+
+        UserController controller = new UserController(context, userService);
+
+        DefaultHttpContext defaultContext = new DefaultHttpContext();
+        defaultContext.Request.Headers.Authorization = "fakeAuthToken";
+        defaultContext.Request.Headers["Cookie"] = new[] { "cookieToken=fakeCookieToken" };
+        controller.ControllerContext.HttpContext = defaultContext;
+
+        IActionResult? response = await controller.Logout();
+
+        Assert.IsType<OkResult>(response);
+    }
+
+    [Fact]
+    public async Task TestChangePasswordReturnsLogsUserOut()
+    {
+        ApplicationDbContext context = _fixture.CreateContext();
+        UserService userService = _fixture.CreateUserService(context);
+
+        UserController controller = new UserController(context, userService);
+
+        User user = new User("username12", "password", "fakeApiToken12", "fakeCookieToken12");
+        context.Users.Add(user);
+        await context.SaveChangesAsync();
+
+
+        DefaultHttpContext defaultContext = new DefaultHttpContext();
+        defaultContext.Request.Headers.Authorization = "fakeApiToken12";
+        defaultContext.Request.Headers["Cookie"] = new[] { "cookieToken=fakeCookieToken12" };
+        controller.ControllerContext.HttpContext = defaultContext;
+
+        IActionResult? response = await controller.Logout();
+
+        Assert.IsType<OkResult>(response);
+
+        Assert.Equal("", user.ApiToken);
+        Assert.Equal("", user.CookieToken);
+        Assert.Empty(user.OldApiTokens);
+        Assert.Empty(user.OldCookieToken);
+    }
+}

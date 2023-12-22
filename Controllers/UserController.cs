@@ -138,4 +138,30 @@ public class UserController : ControllerBase
 
         return Ok();
     }
+
+    [HttpPost("logout")]
+    public async Task<IActionResult> Logout()
+    {
+        string? cookieToken = Request.Cookies["cookieToken"];
+        string? apiToken = Request.Headers.Authorization;
+
+        if (cookieToken == null || apiToken == null) return Ok();
+
+        User user;
+        try {
+            user = await _db.Users
+                            .Where(user => 
+                                    user.CookieToken == cookieToken && 
+                                    user.ApiToken == apiToken)
+                            .SingleAsync();
+        } catch (Exception) {
+            return Ok();
+        }
+        
+        await _userService.Logout(user);
+
+        Response.Cookies.Delete("cookieToken");
+
+        return Ok();
+    }
 }
