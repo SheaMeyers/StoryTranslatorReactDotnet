@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using StoryTranslatorReactDotnet.Controllers;
 using StoryTranslatorReactDotnet.Database;
 using StoryTranslatorReactDotnet.Helpers;
@@ -22,22 +23,22 @@ public class SignUpTests : IClassFixture<TestDatabaseFixture>
             "A really really really long string to act as a secret key for when the token is generated"
         );
 
-        var context = _fixture.CreateContext();
-        var userService = _fixture.CreateUserService(context);
-        var tokenService = _fixture.CreateTokenService(context);
-        var controller = new UserController(context, userService, tokenService);
+        ApplicationDbContext context = _fixture.CreateContext();
+        UserService userService = _fixture.CreateUserService(context);
+        TokenService tokenService = _fixture.CreateTokenService(context);
+        UserController controller = new UserController(context, userService, tokenService);
         controller.ControllerContext.HttpContext = new DefaultHttpContext();
 
-        var response = await controller.Signup(new LoginData { Username = "username", Password = "password" });
+        IActionResult? response = await controller.Signup(new LoginData { Username = "username", Password = "password" });
 
-        var responseResult = Assert.IsType<OkObjectResult>(response);
+        OkObjectResult? responseResult = Assert.IsType<OkObjectResult>(response);
 
-        var responseValue = responseResult.Value as dynamic;
-        var apiToken = responseValue?.apiToken;
+        dynamic? responseValue = responseResult.Value as dynamic;
+        dynamic? apiToken = responseValue?.apiToken;
 
         Assert.NotNull(apiToken);
 
-        var user = context.Users.Where(user => user.Username == "username").FirstOrDefault();
+        User? user = await context.Users.Where(user => user.Username == "username").FirstOrDefaultAsync();
 
         Assert.NotNull(user);
 
@@ -49,20 +50,20 @@ public class SignUpTests : IClassFixture<TestDatabaseFixture>
     [Fact]
     public async Task TestSignUpFailsWhenUsernameTaken()
     {
-        var context = _fixture.CreateContext();
-        var userService = _fixture.CreateUserService(context);
-        var tokenService = _fixture.CreateTokenService(context);
+        ApplicationDbContext context = _fixture.CreateContext();
+        UserService userService = _fixture.CreateUserService(context);
+        TokenService tokenService = _fixture.CreateTokenService(context);
 
-        var user = new User("username2", "password");
+        User user = new User("username2", "password");
 
         context.Users.Add(user);
         await context.SaveChangesAsync();
 
-        var controller = new UserController(context, userService, tokenService);
+        UserController controller = new UserController(context, userService, tokenService);
         
-        var response = await controller.Signup(new LoginData { Username = "username2", Password = "password" });
+        IActionResult? response = await controller.Signup(new LoginData { Username = "username2", Password = "password" });
 
-        var responseResult = Assert.IsType<BadRequestObjectResult>(response);
+        BadRequestObjectResult? responseResult = Assert.IsType<BadRequestObjectResult>(response);
 
         Assert.Equal("Username username2 already taken", responseResult.Value);
     }
@@ -82,24 +83,24 @@ public class LoginTests : IClassFixture<TestDatabaseFixture>
             "A really really really long string to act as a secret key for when the token is generated"
         );
 
-        var context = _fixture.CreateContext();
-        var userService = _fixture.CreateUserService(context);
-        var tokenService = _fixture.CreateTokenService(context);
+        ApplicationDbContext context = _fixture.CreateContext();
+        UserService userService = _fixture.CreateUserService(context);
+        TokenService tokenService = _fixture.CreateTokenService(context);
         
         context.Users.Add(new User("username3", "password"));
         await context.SaveChangesAsync();
 
-        var controller = new UserController(context, userService, tokenService);
+        UserController controller = new UserController(context, userService, tokenService);
         controller.ControllerContext.HttpContext = new DefaultHttpContext();
 
-        var response = await controller.Login(new LoginData { Username = "username3", Password = "password" });
+        IActionResult? response = await controller.Login(new LoginData { Username = "username3", Password = "password" });
 
-        var responseResult = Assert.IsType<OkObjectResult>(response);
+        OkObjectResult? responseResult = Assert.IsType<OkObjectResult>(response);
 
-        var responseValue = responseResult.Value as dynamic;
-        var apiToken = responseValue?.apiToken;
+        dynamic? responseValue = responseResult.Value as dynamic;
+        dynamic? apiToken = responseValue?.apiToken;
 
-        var user = context.Users.Where(user => user.Username == "username3").FirstOrDefault();
+        User? user = await context.Users.Where(user => user.Username == "username3").FirstOrDefaultAsync();
 
         Assert.NotNull(user);
         Assert.Equal(apiToken, user.Tokens.First().ApiToken);
@@ -109,17 +110,17 @@ public class LoginTests : IClassFixture<TestDatabaseFixture>
     [Fact]
     public async Task TestLoginReturnsForbidWhenUserNotFound()
     {
-        var context = _fixture.CreateContext();
-        var userService = _fixture.CreateUserService(context);
-        var tokenService = _fixture.CreateTokenService(context);
+        ApplicationDbContext context = _fixture.CreateContext();
+        UserService userService = _fixture.CreateUserService(context);
+        TokenService tokenService = _fixture.CreateTokenService(context);
 
         context.Users.Add(new User("notusername4", "password"));
         await context.SaveChangesAsync();
 
-        var controller = new UserController(context, userService, tokenService);
+        UserController controller = new UserController(context, userService, tokenService);
         controller.ControllerContext.HttpContext = new DefaultHttpContext();
 
-        var response = await controller.Login(new LoginData { Username = "username4", Password = "password" });
+        IActionResult? response = await controller.Login(new LoginData { Username = "username4", Password = "password" });
 
         Assert.IsType<ForbidResult>(response);
     }
@@ -127,17 +128,17 @@ public class LoginTests : IClassFixture<TestDatabaseFixture>
     [Fact]
     public async Task TestLoginReturnsForbidWhenPasswordIsWrong()
     {
-        var context = _fixture.CreateContext();
-        var userService = _fixture.CreateUserService(context);
-        var tokenService = _fixture.CreateTokenService(context);
+        ApplicationDbContext context = _fixture.CreateContext();
+        UserService userService = _fixture.CreateUserService(context);
+        TokenService tokenService = _fixture.CreateTokenService(context);
 
         context.Users.Add(new User("username5", "notpassword"));
         await context.SaveChangesAsync();
 
-        var controller = new UserController(context, userService, tokenService);
+        UserController controller = new UserController(context, userService, tokenService);
         controller.ControllerContext.HttpContext = new DefaultHttpContext();
 
-        var response = await controller.Login(new LoginData { Username = "username5", Password = "password" });
+        IActionResult? response = await controller.Login(new LoginData { Username = "username5", Password = "password" });
 
         Assert.IsType<ForbidResult>(response);
     }
@@ -154,7 +155,7 @@ public class ChangePasswordTests : IClassFixture<TestDatabaseFixture>
     {
         ApplicationDbContext context = _fixture.CreateContext();
         UserService userService = _fixture.CreateUserService(context);
-        var tokenService = _fixture.CreateTokenService(context);
+        TokenService tokenService = _fixture.CreateTokenService(context);
 
         UserController controller = new UserController(context, userService, tokenService);
 
@@ -177,7 +178,7 @@ public class ChangePasswordTests : IClassFixture<TestDatabaseFixture>
     {
         ApplicationDbContext context = _fixture.CreateContext();
         UserService userService = _fixture.CreateUserService(context);
-        var tokenService = _fixture.CreateTokenService(context);
+        TokenService tokenService = _fixture.CreateTokenService(context);
 
         UserController controller = new UserController(context, userService, tokenService);
 
@@ -200,7 +201,7 @@ public class ChangePasswordTests : IClassFixture<TestDatabaseFixture>
     {
         ApplicationDbContext context = _fixture.CreateContext();
         UserService userService = _fixture.CreateUserService(context);
-        var tokenService = _fixture.CreateTokenService(context);
+        TokenService tokenService = _fixture.CreateTokenService(context);
 
         UserController controller = new UserController(context, userService, tokenService);
 
@@ -219,158 +220,71 @@ public class ChangePasswordTests : IClassFixture<TestDatabaseFixture>
         Assert.IsType<ForbidResult>(response);
     }
 
-    // [Fact]
-    // public async Task TestChangePasswordReturnsLogsUserOutWhenOldApiTokenPassed()
-    // {
-    //     ApplicationDbContext context = _fixture.CreateContext();
-    //     UserService userService = _fixture.CreateUserService(context);
-    //     var tokenService = _fixture.CreateTokenService(context);
+    [Fact]
+    public async Task TestChangePasswordReturnsForbidWhenInvalidApiTokenPassed()
+    {
+        ApplicationDbContext context = _fixture.CreateContext();
+        UserService userService = _fixture.CreateUserService(context);
+        TokenService tokenService = _fixture.CreateTokenService(context);
+        (_, string cookieToken) = Tokens.GenerateTokens();
 
-    //     User user = new User("username6", "password", "fakeApiToken");
-    //     user.OldCookieToken.Add("fakeCookieToken");
-    //     context.Users.Add(user);
-    //     await context.SaveChangesAsync();
+        User user = new User("username6", "password", "invalidApiToken", cookieToken);
+        context.Users.Add(user);
+        await context.SaveChangesAsync();
 
-    //     UserController controller = new UserController(context, userService, tokenService);
+        UserController controller = new UserController(context, userService, tokenService);
 
-    //     DefaultHttpContext defaultContext = new DefaultHttpContext();
-    //     defaultContext.Request.Headers.Authorization = "fakeApiToken";
-    //     defaultContext.Request.Headers["Cookie"] = new[] { "cookieToken=fakeCookieToken" };
-    //     controller.ControllerContext.HttpContext = defaultContext;
+        DefaultHttpContext defaultContext = new DefaultHttpContext();
+        defaultContext.Request.Headers.Authorization = "invalidApiToken";
+        defaultContext.Request.Headers["Cookie"] = new[] { $"cookieToken={cookieToken}" };
+        controller.ControllerContext.HttpContext = defaultContext;
 
-    //     ChangePasswordData passwordChangeData = new ChangePasswordData { 
-    //         OldPassword = "OldPassword", 
-    //         NewPassword = "NewPassword" 
-    //     };
+        ChangePasswordData passwordChangeData = new ChangePasswordData { 
+            OldPassword = "OldPassword", 
+            NewPassword = "NewPassword" 
+        };
 
-    //     IActionResult? response = await controller.ChangePassword(passwordChangeData);
+        IActionResult? response = await controller.ChangePassword(passwordChangeData);
 
-    //     Assert.IsType<ForbidResult>(response);
+        Assert.IsType<ForbidResult>(response);
 
-    //     await context.Entry(user).ReloadAsync();
+        await context.Entry(user).ReloadAsync();
 
-    //     Assert.Equal("", user.ApiToken);
-    //     Assert.Equal("", user.CookieToken);
-    //     Assert.Empty(user.OldApiTokens);
-    //     Assert.Empty(user.OldCookieToken);
-    // }
+        Assert.Equal(new List<Token>(), user.Tokens);
+    }
 
-    // [Fact]
-    // public async Task TestChangePasswordReturnsLogsUserOutWhenOldCookieTokenPassed()
-    // {
-    //     ApplicationDbContext context = _fixture.CreateContext();
-    //     UserService userService = _fixture.CreateUserService(context);
+    [Fact]
+    public async Task TestChangePasswordReturnsForbidWhenInvalidCookieTokenPassed()
+    {
+        ApplicationDbContext context = _fixture.CreateContext();
+        UserService userService = _fixture.CreateUserService(context);
+        TokenService tokenService = _fixture.CreateTokenService(context);
+        (string apiToken, _) = Tokens.GenerateTokens();
 
-    //     User user = new User("username7", "password", cookieToken: "fakeCookieToken");
-    //     user.OldApiTokens.Add("fakeApiToken");
-    //     context.Users.Add(user);
-    //     await context.SaveChangesAsync();
+        User user = new User("username7", "password", apiToken, "invalidCookieToken");
+        context.Users.Add(user);
+        await context.SaveChangesAsync();
 
-    //     UserController controller = new UserController(context, userService);
+        UserController controller = new UserController(context, userService, tokenService);
 
-    //     DefaultHttpContext defaultContext = new DefaultHttpContext();
-    //     defaultContext.Request.Headers.Authorization = "fakeApiToken";
-    //     defaultContext.Request.Headers["Cookie"] = new[] { "cookieToken=fakeCookieToken" };
-    //     controller.ControllerContext.HttpContext = defaultContext;
+        DefaultHttpContext defaultContext = new DefaultHttpContext();
+        defaultContext.Request.Headers.Authorization = apiToken;
+        defaultContext.Request.Headers["Cookie"] = new[] { "cookieToken=invalidCookieToken" };
+        controller.ControllerContext.HttpContext = defaultContext;
 
-    //     ChangePasswordData passwordChangeData = new ChangePasswordData { 
-    //         OldPassword = "OldPassword", 
-    //         NewPassword = "NewPassword" 
-    //     };
+        ChangePasswordData passwordChangeData = new ChangePasswordData { 
+            OldPassword = "OldPassword", 
+            NewPassword = "NewPassword" 
+        };
 
-    //     IActionResult? response = await controller.ChangePassword(passwordChangeData);
+        IActionResult? response = await controller.ChangePassword(passwordChangeData);
 
-    //     Assert.IsType<ForbidResult>(response);
+        Assert.IsType<ForbidResult>(response);
 
-    //     await context.Entry(user).ReloadAsync();
+        await context.Entry(user).ReloadAsync();
 
-    //     Assert.Equal("", user.ApiToken);
-    //     Assert.Equal("", user.CookieToken);
-    //     Assert.Empty(user.OldApiTokens);
-    //     Assert.Empty(user.OldCookieToken);
-    // }
-
-    // [Fact]
-    // public async Task TestChangePasswordReturnsLogsUserOutApiTokenIsInvalid()
-    // {
-    //     Environment.SetEnvironmentVariable(
-    //         "SecretKey", 
-    //         "A really really really long string to act as a secret key for when the token is generated"
-    //     );
-
-    //     ApplicationDbContext context = _fixture.CreateContext();
-    //     UserService userService = _fixture.CreateUserService(context);
-
-    //     var (_, cookieToken) = Tokens.GenerateTokens();
-
-    //     User user = new User("username8", "password", "invalidApiToken", cookieToken);
-    //     context.Users.Add(user);
-    //     await context.SaveChangesAsync();
-
-    //     UserController controller = new UserController(context, userService);
-
-    //     DefaultHttpContext defaultContext = new DefaultHttpContext();
-    //     defaultContext.Request.Headers.Authorization = "invalidApiToken";
-    //     defaultContext.Request.Headers["Cookie"] = new[] { $"cookieToken={cookieToken}" };
-    //     controller.ControllerContext.HttpContext = defaultContext;
-
-    //     ChangePasswordData passwordChangeData = new ChangePasswordData { 
-    //         OldPassword = "OldPassword", 
-    //         NewPassword = "NewPassword" 
-    //     };
-
-    //     IActionResult? response = await controller.ChangePassword(passwordChangeData);
-
-    //     Assert.IsType<ForbidResult>(response);
-
-    //     await context.Entry(user).ReloadAsync();
-
-    //     Assert.Equal("", user.ApiToken);
-    //     Assert.Equal("", user.CookieToken);
-    //     Assert.Empty(user.OldApiTokens);
-    //     Assert.Empty(user.OldCookieToken);
-    // }
-
-    // [Fact]
-    // public async Task TestChangePasswordReturnsLogsUserOutCookieTokenIsInvalid()
-    // {
-    //     Environment.SetEnvironmentVariable(
-    //         "SecretKey", 
-    //         "A really really really long string to act as a secret key for when the token is generated"
-    //     );
-
-    //     ApplicationDbContext context = _fixture.CreateContext();
-    //     UserService userService = _fixture.CreateUserService(context);
-
-    //     var (apiToken, _) = Tokens.GenerateTokens();
-
-    //     User user = new User("username9", "password", apiToken, "fakeCookieToken");
-    //     context.Users.Add(user);
-    //     await context.SaveChangesAsync();
-
-    //     UserController controller = new UserController(context, userService);
-
-    //     DefaultHttpContext defaultContext = new DefaultHttpContext();
-    //     defaultContext.Request.Headers.Authorization = apiToken;
-    //     defaultContext.Request.Headers["Cookie"] = new[] { "cookieToken=fakeCookieToken" };
-    //     controller.ControllerContext.HttpContext = defaultContext;
-
-    //     ChangePasswordData passwordChangeData = new ChangePasswordData { 
-    //         OldPassword = "OldPassword", 
-    //         NewPassword = "NewPassword" 
-    //     };
-
-    //     IActionResult? response = await controller.ChangePassword(passwordChangeData);
-
-    //     Assert.IsType<ForbidResult>(response);
-
-    //     await context.Entry(user).ReloadAsync();
-
-    //     Assert.Equal("", user.ApiToken);
-    //     Assert.Equal("", user.CookieToken);
-    //     Assert.Empty(user.OldApiTokens);
-    //     Assert.Empty(user.OldCookieToken);
-    // }
+        Assert.Equal(new List<Token>(), user.Tokens);
+    }
 
     [Fact]
     public async Task TestChangePasswordForbidsWhenPasswordIsWrong()
@@ -408,10 +322,8 @@ public class ChangePasswordTests : IClassFixture<TestDatabaseFixture>
 
         await context.Entry(user).ReloadAsync();
 
-        // Assert.Equal(apiToken, user.ApiToken);
-        // Assert.Equal(cookieToken, user.CookieToken);
-        // Assert.Empty(user.OldApiTokens);
-        // Assert.Empty(user.OldCookieToken);
+        Assert.Equal(apiToken, user.Tokens.First().ApiToken);
+        Assert.Equal(cookieToken, user.Tokens.First().CookieToken);
     }
 
     [Fact]
@@ -463,7 +375,7 @@ public class LogoutTests : IClassFixture<TestDatabaseFixture>
     public TestDatabaseFixture _fixture { get; }
 
     [Fact]
-    public async Task TestChangePasswordReturnsOkWithNoApiToken()
+    public async Task TestLogoutReturnsOkWithNoApiToken()
     {
         ApplicationDbContext context = _fixture.CreateContext();
         UserService userService = _fixture.CreateUserService(context);
@@ -481,7 +393,7 @@ public class LogoutTests : IClassFixture<TestDatabaseFixture>
     }
 
     [Fact]
-    public async Task TestChangePasswordReturnsOkWithNoCookieToken()
+    public async Task TestLogoutReturnsOkWithNoCookieToken()
     {
         ApplicationDbContext context = _fixture.CreateContext();
         UserService userService = _fixture.CreateUserService(context);
@@ -499,7 +411,7 @@ public class LogoutTests : IClassFixture<TestDatabaseFixture>
     }
 
     [Fact]
-    public async Task TestChangePasswordReturnsOkWhenUserNotFound()
+    public async Task TestLogoutReturnsOkWhenUserNotFound()
     {
         ApplicationDbContext context = _fixture.CreateContext();
         UserService userService = _fixture.CreateUserService(context);
@@ -518,7 +430,7 @@ public class LogoutTests : IClassFixture<TestDatabaseFixture>
     }
 
     [Fact]
-    public async Task TestChangePasswordReturnsLogsUserOut()
+    public async Task TestLogoutRemovesOnlyOneToken()
     {
         ApplicationDbContext context = _fixture.CreateContext();
         UserService userService = _fixture.CreateUserService(context);
@@ -527,6 +439,7 @@ public class LogoutTests : IClassFixture<TestDatabaseFixture>
         UserController controller = new UserController(context, userService, tokenService);
 
         User user = new User("username12", "password", "fakeApiToken12", "fakeCookieToken12");
+        user.Tokens.Add(new Token("fakeApiToken13", "fakeCookieToken13", user));
         context.Users.Add(user);
         await context.SaveChangesAsync();
 
@@ -540,9 +453,36 @@ public class LogoutTests : IClassFixture<TestDatabaseFixture>
 
         Assert.IsType<OkResult>(response);
 
-        // Assert.Equal("", user.ApiToken);
-        // Assert.Equal("", user.CookieToken);
-        // Assert.Empty(user.OldApiTokens);
-        // Assert.Empty(user.OldCookieToken);
+        Assert.Single(user.Tokens.Where(token => token.ApiToken == "fakeApiToken13"));
+        Assert.Single(user.Tokens.Where(token => token.CookieToken == "fakeCookieToken13"));
+        Assert.Empty(user.Tokens.Where(token => token.ApiToken == "fakeApiToken12"));
+        Assert.Empty(user.Tokens.Where(token => token.CookieToken == "fakeCookieToken12"));
+    }
+
+    [Fact]
+    public async Task TestLogoutRemovesAllTokens()
+    {
+        ApplicationDbContext context = _fixture.CreateContext();
+        UserService userService = _fixture.CreateUserService(context);
+        TokenService tokenService = _fixture.CreateTokenService(context);
+
+        UserController controller = new UserController(context, userService, tokenService);
+
+        User user = new User("username13", "password", "fakeApiToken12", "fakeCookieToken12");
+        user.Tokens.Add(new Token("fakeApiToken13", "fakeCookieToken13", user));
+        context.Users.Add(user);
+        await context.SaveChangesAsync();
+
+
+        DefaultHttpContext defaultContext = new DefaultHttpContext();
+        defaultContext.Request.Headers.Authorization = "fakeApiToken12";
+        defaultContext.Request.Headers["Cookie"] = new[] { "cookieToken=fakeCookieToken12" };
+        controller.ControllerContext.HttpContext = defaultContext;
+
+        IActionResult? response = await controller.Logout(true);
+
+        Assert.IsType<OkResult>(response);
+
+        Assert.Empty(user.Tokens);
     }
 }

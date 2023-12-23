@@ -7,6 +7,7 @@ public class Token: BaseModel
     public Guid UserId {get; set;}
     public User User {get; set;}
 
+    // Required for Entity Framework Migrations
     public Token(string apiToken, string cookieToken)
     {
         this.ApiToken = apiToken;
