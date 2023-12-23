@@ -33,14 +33,14 @@ public class TokenService
         (string newApiToken, string newCookieToken) = Tokens.GenerateTokens();
 
         Token token = await _db.Tokens
-                                    .Where(token => 
-                                            token.ApiToken == apiToken && 
-                                            token.CookieToken == cookieToken)
-                                    .SingleAsync();
+                                .Where(token => 
+                                        token.ApiToken == apiToken && 
+                                        token.CookieToken == cookieToken)
+                                .SingleAsync();
 
         token.Modified = DateTime.UtcNow;
-        token.ApiToken = apiToken;
-        token.CookieToken = cookieToken;
+        token.ApiToken = newApiToken;
+        token.CookieToken = newCookieToken;
 
         _db.Tokens.Update(token);
         await _db.SaveChangesAsync();
