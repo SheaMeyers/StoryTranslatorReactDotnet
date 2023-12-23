@@ -26,11 +26,13 @@ public class UserController : ControllerBase
 {
     private readonly ApplicationDbContext _db;
     private readonly UserService _userService;
+    private readonly TokenService _tokenService;
 
-    public UserController(ApplicationDbContext db, UserService userService)
+    public UserController(ApplicationDbContext db, UserService userService, TokenService tokenService)
     {
         _db = db;
         _userService = userService;
+        _tokenService = tokenService;
     }
 
     [HttpPost("sign-up")]
@@ -44,7 +46,6 @@ public class UserController : ControllerBase
         (string apiToken, string cookieToken) = Tokens.GenerateTokens();
 
         User user = new User(loginData.Username, loginData.Password, apiToken, cookieToken);
-
         _db.Users.Add(user);
         await _db.SaveChangesAsync();
 
@@ -71,15 +72,7 @@ public class UserController : ControllerBase
         if (hasher.VerifyHashedPassword(user, user.Password, loginData.Password) == PasswordVerificationResult.Failed)
             return Forbid();
 
-        (string apiToken, string cookieToken) = Tokens.GenerateTokens();
-
-        user.ApiToken = apiToken;
-        user.CookieToken = cookieToken;
-        user.OldApiTokens = new List<string>();
-        user.OldCookieToken = new List<string>();
-
-        _db.Users.Update(user);
-        await _db.SaveChangesAsync();
+        (string apiToken, string cookieToken) = await _userService.Login(user);
 
         Response.Cookies.Append("cookieToken", cookieToken, new CookieOptions
         {
@@ -99,32 +92,15 @@ public class UserController : ControllerBase
 
         if (cookieToken == null || apiToken == null) return Forbid();
 
-        User user;
-        try {
-            user = await _db.Users
-                            .Where(user => 
-                                    user.CookieToken == cookieToken && 
-                                    user.ApiToken == apiToken)
-                            .SingleAsync();
-        } catch (Exception) {
-            try {
-                user = await _db.Users
-                            .Where(user => 
-                                    user.OldCookieToken.Contains(cookieToken) ||
-                                    user.OldApiTokens.Contains(apiToken))
-                            .SingleAsync();
-            } catch (Exception) {
-                return Forbid();
-            }
-            await _userService.Logout(user);
-            return Forbid();
-        }
+        User? user = await _userService.GetUser(apiToken, cookieToken);
+
+        if (user == null) return Forbid();
         
         var isCookieTokenValid = await Tokens.ValidateToken(cookieToken);
         var isApiTokenValid = await Tokens.ValidateToken(apiToken);
 
         if (isCookieTokenValid == false || isApiTokenValid == false) {
-            await _userService.Logout(user);
+            await _tokenService.Logout(apiToken, cookieToken);
             return Forbid();
         }
 
@@ -136,29 +112,46 @@ public class UserController : ControllerBase
         _db.Users.Update(user);
         await _db.SaveChangesAsync();
 
-        return Ok();
+        (apiToken, cookieToken) = await _tokenService.Regenerate(apiToken, cookieToken);
+
+        Response.Cookies.Append("cookieToken", cookieToken, new CookieOptions
+        {
+            Secure = true,
+            HttpOnly = true,
+            SameSite = SameSiteMode.Strict
+        });
+
+        return Ok(new { apiToken });
     }
 
     [HttpPost("logout")]
-    public async Task<IActionResult> Logout()
+    public async Task<IActionResult> Logout([FromQuery] bool logoutAll = false)
     {
         string? cookieToken = Request.Cookies["cookieToken"];
         string? apiToken = Request.Headers.Authorization;
 
         if (cookieToken == null || apiToken == null) return Ok();
 
-        User user;
-        try {
-            user = await _db.Users
-                            .Where(user => 
-                                    user.CookieToken == cookieToken && 
-                                    user.ApiToken == apiToken)
-                            .SingleAsync();
-        } catch (Exception) {
-            return Ok();
+        Token? token = await _db.Tokens
+                                    .Where(token => 
+                                            token.ApiToken == apiToken && 
+                                            token.CookieToken == cookieToken)
+                                    .SingleOrDefaultAsync();
+
+        if (token == null) return Ok();
+            
+        if (logoutAll) {
+            User? user = await _userService.GetUser(apiToken, cookieToken);
+            if (user == null) {
+                _db.Tokens.Remove(token);
+                await _db.SaveChangesAsync();
+            } else {
+                await _userService.Logout(user);
+            }
+        } else {
+            _db.Tokens.Remove(token);
+            await _db.SaveChangesAsync();
         }
-        
-        await _userService.Logout(user);
 
         Response.Cookies.Delete("cookieToken");
 

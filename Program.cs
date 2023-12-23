@@ -16,6 +16,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddTransient<UserService, UserService>();
+builder.Services.AddTransient<TokenService, TokenService>();
 
 var app = builder.Build();
 

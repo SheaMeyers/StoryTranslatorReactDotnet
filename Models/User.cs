@@ -1,33 +1,27 @@
-using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Identity;
 
 namespace StoryTranslatorReactDotnet.Models;
 
-public class User
+public class User: BaseModel
 {
-    [Key]
-    public Guid Id {get; set;}
-    public DateTime Created {get; set;}
-    public DateTime Modified {get; set;}
     public DateTime LastLogin {get; set;}
     public string Username {get; set;}
     public string Password {get; set;}
-    public string ApiToken {get; set;}
-    public List<string> OldApiTokens {get; set;}
-    public string CookieToken {get; set;}
-    public List<string> OldCookieToken {get; set;}
+    public ICollection<Token> Tokens {get; set;}
 
-    public User(string username, string password, string apiToken = "", string cookieToken = "")
+    public User(string username, string password)
     {
-        var hasher = new PasswordHasher<User>();
         this.Username = username;
+        var hasher = new PasswordHasher<User>();
         this.Password = hasher.HashPassword(this, password);
-        this.ApiToken = apiToken;
-        this.OldApiTokens = new List<string>();
-        this.CookieToken = cookieToken;
-        this.OldCookieToken = new List<string>();
+        this.Tokens = new List<Token>();
         this.Created = DateTime.UtcNow;
         this.Modified = DateTime.UtcNow;
         this.LastLogin = DateTime.UtcNow;
+    }
+
+    public User(string username, string password, string apiToken, string cookieToken) : this(username, password)
+    {
+        this.Tokens = new List<Token>() { new Token(apiToken, cookieToken, this) };
     }
 }

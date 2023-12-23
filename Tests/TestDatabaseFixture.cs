@@ -33,4 +33,5 @@ public class TestDatabaseFixture
                 .Options);
     
     public UserService CreateUserService(ApplicationDbContext db) => new UserService(db);
+    public TokenService CreateTokenService(ApplicationDbContext db) => new TokenService(db);
 }
