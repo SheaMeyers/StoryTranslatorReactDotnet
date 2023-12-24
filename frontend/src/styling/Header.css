@@ -1,0 +1,12 @@
+#root > .Header {
+    display: flex;
+    flex-direction: row-reverse;
+    background: white;
+}
+
+.Header > .Header__Button {
+    color: black;
+    border: 1px solid black;
+    margin: 1vw 0;
+    margin-right: 2vw;
+}
