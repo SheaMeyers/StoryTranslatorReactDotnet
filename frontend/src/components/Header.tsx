@@ -3,13 +3,14 @@ import Button from "@mui/material/Button"
 import "../styling/Header.css"
 
 type HeaderProps = {
+  username: string
   apiToken: string
 }
 
 const Header = (props: HeaderProps) => {
   return (
     <AppBar position="static" className="Header">
-      {props.apiToken ? (
+      {props.apiToken && props.username ? (
         <>
           <Button variant="outlined" className="Header__Button">
             Logout
@@ -17,6 +18,7 @@ const Header = (props: HeaderProps) => {
           <Button variant="outlined" className="Header__Button">
             Change Password
           </Button>
+          <p className="Header__Paragraph">Hello {props.username}</p>
         </>
       ) : (
         <>
