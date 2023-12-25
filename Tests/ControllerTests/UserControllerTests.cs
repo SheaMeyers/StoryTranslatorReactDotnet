@@ -486,3 +486,102 @@ public class LogoutTests : IClassFixture<TestDatabaseFixture>
         Assert.Empty(user.Tokens);
     }
 }
+
+
+public class GetUsernameAndTokenTests : IClassFixture<TestDatabaseFixture>
+{
+    public GetUsernameAndTokenTests(TestDatabaseFixture fixture) => _fixture = fixture;
+
+    public TestDatabaseFixture _fixture { get; }
+
+    [Fact]
+    public async Task TestGetUsernameAndTokenReturnsForbidWithNoCookieToken()
+    {
+        ApplicationDbContext context = _fixture.CreateContext();
+        UserService userService = _fixture.CreateUserService(context);
+        TokenService tokenService = _fixture.CreateTokenService(context);
+
+        UserController controller = new UserController(context, userService, tokenService);
+
+        DefaultHttpContext defaultContext = new DefaultHttpContext();
+        controller.ControllerContext.HttpContext = defaultContext;
+
+        IActionResult? response = await controller.GetUsernameAndToken();
+
+        Assert.IsType<ForbidResult>(response);
+    }
+
+    [Fact]
+    public async Task TestGetUsernameAndTokenReturnsForbidWithInvalidCookieToken()
+    {
+        ApplicationDbContext context = _fixture.CreateContext();
+        UserService userService = _fixture.CreateUserService(context);
+        TokenService tokenService = _fixture.CreateTokenService(context);
+
+        UserController controller = new UserController(context, userService, tokenService);
+
+        DefaultHttpContext defaultContext = new DefaultHttpContext();
+        defaultContext.Request.Headers["Cookie"] = new[] { "cookieToken=invalidCookieToken" };
+        controller.ControllerContext.HttpContext = defaultContext;
+
+        IActionResult? response = await controller.GetUsernameAndToken();
+
+        Assert.IsType<ForbidResult>(response);
+    }
+
+    [Fact]
+    public async Task TestGetUsernameAndTokenReturnsForbidWhenNoTokenFound()
+    {
+        ApplicationDbContext context = _fixture.CreateContext();
+        UserService userService = _fixture.CreateUserService(context);
+        TokenService tokenService = _fixture.CreateTokenService(context);
+
+        UserController controller = new UserController(context, userService, tokenService);
+
+        (_, string cookieToken) = Tokens.GenerateTokens();
+
+        DefaultHttpContext defaultContext = new DefaultHttpContext();
+        defaultContext.Request.Headers["Cookie"] = new[] { $"cookieToken={cookieToken}" };
+        controller.ControllerContext.HttpContext = defaultContext;
+
+        IActionResult? response = await controller.GetUsernameAndToken();
+
+        Assert.IsType<ForbidResult>(response);
+    }
+
+    [Fact]
+    public async Task TestGetUsernameAndTokenReturnsUsernameAndToken()
+    {
+        ApplicationDbContext context = _fixture.CreateContext();
+        UserService userService = _fixture.CreateUserService(context);
+        TokenService tokenService = _fixture.CreateTokenService(context);
+
+        UserController controller = new UserController(context, userService, tokenService);
+
+        (string apiToken, string cookieToken) = Tokens.GenerateTokens();
+        
+        User user = new User("username14", "password", apiToken, cookieToken);
+        context.Users.Add(user);
+        await context.SaveChangesAsync();
+
+        DefaultHttpContext defaultContext = new DefaultHttpContext();
+        defaultContext.Request.Headers["Cookie"] = new[] { $"cookieToken={cookieToken}" };
+        controller.ControllerContext.HttpContext = defaultContext;
+
+        IActionResult? response = await controller.GetUsernameAndToken();
+
+        OkObjectResult? responseResult = Assert.IsType<OkObjectResult>(response);
+
+        dynamic? responseValue = responseResult.Value as dynamic;
+        dynamic? returnedApiToken = responseValue?.apiToken;
+        dynamic? returnedUsername = responseValue?.username;
+
+        Assert.NotNull(returnedApiToken);
+        Assert.NotNull(returnedUsername);
+
+        await context.Entry(user).ReloadAsync();
+
+        Assert.Equal(returnedUsername, user.Username);
+        Assert.Equal(returnedApiToken, user.Tokens.First().ApiToken);
+    }
+}

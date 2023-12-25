@@ -157,4 +157,33 @@ public class UserController : ControllerBase
 
         return Ok();
     }
+
+    [HttpGet("get-username-and-token")]
+    public async Task<IActionResult> GetUsernameAndToken()
+    {
+        string? cookieToken = Request.Cookies["cookieToken"];
+
+        if (cookieToken == null) return Forbid();
+
+        var isCookieTokenValid = await Tokens.ValidateToken(cookieToken);
+
+        if (isCookieTokenValid == false) return Forbid();
+
+        Token? token = await _db.Tokens
+                                    .Where(token => token.CookieToken == cookieToken)
+                                    .SingleOrDefaultAsync();
+
+        if (token == null) return Forbid();
+
+        (string apiToken, string newCookieToken) = await _tokenService.Regenerate(token.ApiToken, token.CookieToken);
+
+        Response.Cookies.Append("cookieToken", newCookieToken, new CookieOptions
+        {
+            Secure = true,
+            HttpOnly = true,
+            SameSite = SameSiteMode.Strict
+        });
+
+        return Ok(new { apiToken, username = token.User.Username });
+    }
 }
