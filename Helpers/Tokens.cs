@@ -13,10 +13,11 @@ public static class Tokens
         var key = new SymmetricSecurityKey(keyBytes);
         var cred = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
 
-        var claims = new Claim[] { new Claim("randomId", Guid.NewGuid().ToString()) };
+        var apiTokenClaims = new Claim[] { new Claim("randomId", Guid.NewGuid().ToString()) };
+        var cookieTokenClaims = new Claim[] { new Claim("randomId", Guid.NewGuid().ToString()) };
 
-        var ApiToken = new JwtSecurityToken(claims: claims, expires: DateTime.UtcNow.AddMinutes(10), signingCredentials: cred);
-        var CookieToken = new JwtSecurityToken(claims: claims, expires: DateTime.UtcNow.AddMinutes(10), signingCredentials: cred);
+        var ApiToken = new JwtSecurityToken(claims: apiTokenClaims, expires: DateTime.UtcNow.AddDays(7), signingCredentials: cred);
+        var CookieToken = new JwtSecurityToken(claims: cookieTokenClaims, expires: DateTime.UtcNow.AddDays(7), signingCredentials: cred);
 
         var handler = new JwtSecurityTokenHandler();
 
