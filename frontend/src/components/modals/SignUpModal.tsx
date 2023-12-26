@@ -1,8 +1,11 @@
 import Button from '@mui/material/Button'
 import Modal from '@mui/material/Modal'
 import TextField from '@mui/material/TextField'
+import Box from '@mui/material/Box'
 import { useState } from 'react'
 import { signUp } from '../../api'
+import '../../styling/Modals.css'
+
 
 type SignUpModalProps = {
   isOpen: boolean
@@ -48,7 +51,7 @@ const SignUpModal = (props: SignUpModalProps) => {
       aria-labelledby="modal-modal-title"
       aria-describedby="modal-modal-description"
     >
-      <>
+      <Box className="Modal__Box">
         <TextField
           id="username"
           label="Username"
@@ -77,7 +80,7 @@ const SignUpModal = (props: SignUpModalProps) => {
         />
         {error && <p>{error}</p>}
         <Button variant="contained" onClick={handleSubmit}>Submit</Button>
-      </>
+      </Box>
     </Modal>
   );
 }
