@@ -170,6 +170,7 @@ public class UserController : ControllerBase
         if (isCookieTokenValid == false) return Unauthorized();
 
         Token? token = await _db.Tokens
+                                    .Include(token => token.User)
                                     .Where(token => token.CookieToken == cookieToken)
                                     .SingleOrDefaultAsync();
 
