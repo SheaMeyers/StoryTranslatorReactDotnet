@@ -7,15 +7,14 @@ const App = () => {
   const [username, setUsername] = useState<string>('')
   const [apiToken, setApiToken] = useState<string>('')
 
+  const updateUsernameAndApiToken = (username: string, apiToken: string) => {
+    setUsername(username)
+    setApiToken(apiToken)
+  }
+
   useEffect(() => {
     const fetchData = async () => {
-      debugger
       const [retrievedUsername, retrievedApiToken] = await getUsernameAndToken()
-      console.log('retrievedUsername')
-      console.log(retrievedUsername)
-      console.log('retrievedApiToken')
-      console.log(retrievedApiToken)
-      debugger
       if (retrievedUsername && retrievedApiToken) {
         setUsername(retrievedUsername)
         setApiToken(retrievedApiToken)
@@ -26,7 +25,7 @@ const App = () => {
 
   return (
     <>
-     <Header apiToken={apiToken} username={username} /> 
+     <Header apiToken={apiToken} username={username} updateUsernameAndApiToken={updateUsernameAndApiToken} /> 
     </>
   )
 }
