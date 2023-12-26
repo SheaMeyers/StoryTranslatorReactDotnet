@@ -9,7 +9,7 @@ import '../../styling/Modals.css'
 
 type SignUpModalProps = {
   isOpen: boolean
-  handleClose: (username: string, apiToken: string) => void
+  handleClose: (username?: string, apiToken?: string, ) => void
 }
 
 
@@ -47,7 +47,7 @@ const SignUpModal = (props: SignUpModalProps) => {
   return (
     <Modal
       open={props.isOpen}
-      onClose={props.handleClose}
+      onClose={() => props.handleClose()}
       aria-labelledby="modal-modal-title"
       aria-describedby="modal-modal-description"
     >

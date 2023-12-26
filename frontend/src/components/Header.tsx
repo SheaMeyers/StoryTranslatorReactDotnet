@@ -15,10 +15,9 @@ const Header = (props: HeaderProps) => {
   const [isSignUpModalOpen, setIsSignUpModalOpen] = useState<boolean>(false)
 
   const handleSignUpModalClose = (username: string = "", apiToken: string = "") => {
-    if (username && apiToken) {
-      props.updateUsernameAndApiToken(username, apiToken)
-      setIsSignUpModalOpen(false)
-    }
+    if (username && apiToken) props.updateUsernameAndApiToken(username, apiToken)
+    
+    setIsSignUpModalOpen(false)
   }
 
   return (
