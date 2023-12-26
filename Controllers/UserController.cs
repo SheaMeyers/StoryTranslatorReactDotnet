@@ -66,11 +66,11 @@ public class UserController : ControllerBase
 
         User? user = _db.Users.Where(user => user.Username == loginData.Username).SingleOrDefault();
 
-        if (user == null) return Forbid();
+        if (user == null) return Unauthorized();
 
         var hasher = new PasswordHasher<User>();
         if (hasher.VerifyHashedPassword(user, user.Password, loginData.Password) == PasswordVerificationResult.Failed)
-            return Forbid();
+            return Unauthorized();
 
         (string apiToken, string cookieToken) = await _userService.Login(user);
 
@@ -90,23 +90,23 @@ public class UserController : ControllerBase
         string? cookieToken = Request.Cookies["cookieToken"];
         string? apiToken = Request.Headers.Authorization;
 
-        if (cookieToken == null || apiToken == null) return Forbid();
+        if (cookieToken == null || apiToken == null) return Unauthorized();
 
         User? user = await _userService.GetUser(apiToken, cookieToken);
 
-        if (user == null) return Forbid();
+        if (user == null) return Unauthorized();
         
         var isCookieTokenValid = await Tokens.ValidateToken(cookieToken);
         var isApiTokenValid = await Tokens.ValidateToken(apiToken);
 
         if (isCookieTokenValid == false || isApiTokenValid == false) {
             await _tokenService.Logout(apiToken, cookieToken);
-            return Forbid();
+            return Unauthorized();
         }
 
         var hasher = new PasswordHasher<User>();
         if (hasher.VerifyHashedPassword(user, user.Password, changePasswordData.OldPassword) == PasswordVerificationResult.Failed)
-            return Forbid();
+            return Unauthorized();
 
         user.Password = hasher.HashPassword(user, changePasswordData.NewPassword);
         _db.Users.Update(user);
@@ -163,17 +163,17 @@ public class UserController : ControllerBase
     {
         string? cookieToken = Request.Cookies["cookieToken"];
 
-        if (cookieToken == null) return Forbid();
+        if (cookieToken == null) return Unauthorized();
 
         var isCookieTokenValid = await Tokens.ValidateToken(cookieToken);
 
-        if (isCookieTokenValid == false) return Forbid();
+        if (isCookieTokenValid == false) return Unauthorized();
 
         Token? token = await _db.Tokens
                                     .Where(token => token.CookieToken == cookieToken)
                                     .SingleOrDefaultAsync();
 
-        if (token == null) return Forbid();
+        if (token == null) return Unauthorized();
 
         (string apiToken, string newCookieToken) = await _tokenService.Regenerate(token.ApiToken, token.CookieToken);
 

@@ -122,7 +122,7 @@ public class LoginTests : IClassFixture<TestDatabaseFixture>
 
         IActionResult? response = await controller.Login(new LoginData { Username = "username4", Password = "password" });
 
-        Assert.IsType<ForbidResult>(response);
+        Assert.IsType<UnauthorizedResult>(response);
     }
 
     [Fact]
@@ -140,7 +140,7 @@ public class LoginTests : IClassFixture<TestDatabaseFixture>
 
         IActionResult? response = await controller.Login(new LoginData { Username = "username5", Password = "password" });
 
-        Assert.IsType<ForbidResult>(response);
+        Assert.IsType<UnauthorizedResult>(response);
     }
 }
 
@@ -170,7 +170,7 @@ public class ChangePasswordTests : IClassFixture<TestDatabaseFixture>
 
         IActionResult? response = await controller.ChangePassword(passwordChangeData);
 
-        Assert.IsType<ForbidResult>(response);
+        Assert.IsType<UnauthorizedResult>(response);
     }
 
     [Fact]
@@ -193,7 +193,7 @@ public class ChangePasswordTests : IClassFixture<TestDatabaseFixture>
 
         IActionResult? response = await controller.ChangePassword(passwordChangeData);
 
-        Assert.IsType<ForbidResult>(response);
+        Assert.IsType<UnauthorizedResult>(response);
     }
 
     [Fact]
@@ -217,7 +217,7 @@ public class ChangePasswordTests : IClassFixture<TestDatabaseFixture>
 
         IActionResult? response = await controller.ChangePassword(passwordChangeData);
 
-        Assert.IsType<ForbidResult>(response);
+        Assert.IsType<UnauthorizedResult>(response);
     }
 
     [Fact]
@@ -246,7 +246,7 @@ public class ChangePasswordTests : IClassFixture<TestDatabaseFixture>
 
         IActionResult? response = await controller.ChangePassword(passwordChangeData);
 
-        Assert.IsType<ForbidResult>(response);
+        Assert.IsType<UnauthorizedResult>(response);
 
         await context.Entry(user).ReloadAsync();
 
@@ -279,7 +279,7 @@ public class ChangePasswordTests : IClassFixture<TestDatabaseFixture>
 
         IActionResult? response = await controller.ChangePassword(passwordChangeData);
 
-        Assert.IsType<ForbidResult>(response);
+        Assert.IsType<UnauthorizedResult>(response);
 
         await context.Entry(user).ReloadAsync();
 
@@ -318,7 +318,7 @@ public class ChangePasswordTests : IClassFixture<TestDatabaseFixture>
 
         IActionResult? response = await controller.ChangePassword(passwordChangeData);
 
-        Assert.IsType<ForbidResult>(response);
+        Assert.IsType<UnauthorizedResult>(response);
 
         await context.Entry(user).ReloadAsync();
 
@@ -508,7 +508,7 @@ public class GetUsernameAndTokenTests : IClassFixture<TestDatabaseFixture>
 
         IActionResult? response = await controller.GetUsernameAndToken();
 
-        Assert.IsType<ForbidResult>(response);
+        Assert.IsType<UnauthorizedResult>(response);
     }
 
     [Fact]
@@ -526,7 +526,7 @@ public class GetUsernameAndTokenTests : IClassFixture<TestDatabaseFixture>
 
         IActionResult? response = await controller.GetUsernameAndToken();
 
-        Assert.IsType<ForbidResult>(response);
+        Assert.IsType<UnauthorizedResult>(response);
     }
 
     [Fact]
@@ -546,7 +546,7 @@ public class GetUsernameAndTokenTests : IClassFixture<TestDatabaseFixture>
 
         IActionResult? response = await controller.GetUsernameAndToken();
 
-        Assert.IsType<ForbidResult>(response);
+        Assert.IsType<UnauthorizedResult>(response);
     }
 
     [Fact]
