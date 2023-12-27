@@ -46,6 +46,7 @@ public class UserController : ControllerBase
         (string apiToken, string cookieToken) = Tokens.GenerateTokens();
 
         User user = new User(loginData.Username, loginData.Password, apiToken, cookieToken);
+        user.Password = new PasswordHasher<User>().HashPassword(user, loginData.Password);
         _db.Users.Add(user);
         await _db.SaveChangesAsync();
 
@@ -68,8 +69,7 @@ public class UserController : ControllerBase
 
         if (user == null) return Unauthorized();
 
-        var hasher = new PasswordHasher<User>();
-        if (hasher.VerifyHashedPassword(user, user.Password, loginData.Password) == PasswordVerificationResult.Failed)
+        if (new PasswordHasher<User>().VerifyHashedPassword(user, user.Password, loginData.Password) == PasswordVerificationResult.Failed)
             return Unauthorized();
 
         (string apiToken, string cookieToken) = await _userService.Login(user);

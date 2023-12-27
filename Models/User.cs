@@ -12,8 +12,8 @@ public class User: BaseModel
     public User(string username, string password)
     {
         this.Username = username;
-        var hasher = new PasswordHasher<User>();
-        this.Password = hasher.HashPassword(this, password);
+        this.Password = password;
+        this.Password = password;
         this.Tokens = new List<Token>();
         this.Created = DateTime.UtcNow;
         this.Modified = DateTime.UtcNow;

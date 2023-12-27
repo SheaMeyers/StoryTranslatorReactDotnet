@@ -21,3 +21,20 @@ export const signUp = async (Username: string, Password: string) => {
     const json = await response.json()
     return json.apiToken
 }
+
+export const login = async (Username: string, Password: string) => {
+    const response: Response = await fetch("/user/login", { 
+        method: 'POST',
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+          },      
+        body: JSON.stringify({ Username, Password })
+    })
+    if (!response.ok) {
+        const text = await response.text()
+        throw new Error(text)
+    }
+    const json = await response.json()
+    return json.apiToken
+}

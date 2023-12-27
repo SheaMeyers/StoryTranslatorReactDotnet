@@ -3,6 +3,7 @@ import Button from "@mui/material/Button"
 import "../styling/Header.css"
 import { useState } from "react"
 import SignUpModal from "./modals/SignUpModal"
+import LoginModal from "./modals/LoginModal"
 
 type HeaderProps = {
   username: string
@@ -13,11 +14,16 @@ type HeaderProps = {
 const Header = (props: HeaderProps) => {
 
   const [isSignUpModalOpen, setIsSignUpModalOpen] = useState<boolean>(false)
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState<boolean>(false)
 
   const handleSignUpModalClose = (username: string = "", apiToken: string = "") => {
     if (username && apiToken) props.updateUsernameAndApiToken(username, apiToken)
-    
     setIsSignUpModalOpen(false)
+  }
+
+  const handleLoginModalClose = (username: string = "", apiToken: string = "") => {
+    if (username && apiToken) props.updateUsernameAndApiToken(username, apiToken)
+    setIsLoginModalOpen(false)
   }
 
   return (
@@ -35,7 +41,7 @@ const Header = (props: HeaderProps) => {
           </>
         ) : (
           <>
-            <Button variant="outlined" className="Header__Button">
+            <Button variant="outlined" className="Header__Button" onClick={() => setIsLoginModalOpen(true)}>
               Login
             </Button>
             <Button variant="outlined" className="Header__Button" onClick={() => setIsSignUpModalOpen(true)}>
@@ -45,6 +51,7 @@ const Header = (props: HeaderProps) => {
         )}
       </AppBar>
       <SignUpModal isOpen={isSignUpModalOpen} handleClose={handleSignUpModalClose} />
+      <LoginModal isOpen={isLoginModalOpen} handleClose={handleLoginModalClose} />
     </>
   )
 }

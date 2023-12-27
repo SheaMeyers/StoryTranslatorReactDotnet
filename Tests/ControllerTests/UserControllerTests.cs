@@ -87,7 +87,9 @@ public class LoginTests : IClassFixture<TestDatabaseFixture>
         UserService userService = _fixture.CreateUserService(context);
         TokenService tokenService = _fixture.CreateTokenService(context);
         
-        context.Users.Add(new User("username3", "password"));
+        var user = new User("username3", "password");
+        user.Password = new PasswordHasher<User>().HashPassword(user, "password");
+        context.Users.Add(user);
         await context.SaveChangesAsync();
 
         UserController controller = new UserController(context, userService, tokenService);
@@ -100,11 +102,11 @@ public class LoginTests : IClassFixture<TestDatabaseFixture>
         dynamic? responseValue = responseResult.Value as dynamic;
         dynamic? apiToken = responseValue?.apiToken;
 
-        User? user = await context.Users.Where(user => user.Username == "username3").FirstOrDefaultAsync();
+        User? dbUser = await context.Users.Where(user => user.Username == "username3").FirstOrDefaultAsync();
 
-        Assert.NotNull(user);
-        Assert.Equal(apiToken, user.Tokens.First().ApiToken);
-        Assert.NotEqual("", user.Tokens.First().CookieToken);
+        Assert.NotNull(dbUser);
+        Assert.Equal(apiToken, dbUser.Tokens.First().ApiToken);
+        Assert.NotEqual("", dbUser.Tokens.First().CookieToken);
     }
 
     [Fact]
@@ -132,7 +134,9 @@ public class LoginTests : IClassFixture<TestDatabaseFixture>
         UserService userService = _fixture.CreateUserService(context);
         TokenService tokenService = _fixture.CreateTokenService(context);
 
-        context.Users.Add(new User("username5", "notpassword"));
+        var user = new User("username5", "notpassword");
+        user.Password = new PasswordHasher<User>().HashPassword(user, "notpassword");
+        context.Users.Add(user);
         await context.SaveChangesAsync();
 
         UserController controller = new UserController(context, userService, tokenService);
@@ -341,6 +345,7 @@ public class ChangePasswordTests : IClassFixture<TestDatabaseFixture>
         var (apiToken, cookieToken) = Tokens.GenerateTokens();
 
         User user = new User("username11", "password", apiToken, cookieToken);
+        user.Password = new PasswordHasher<User>().HashPassword(user, "password");
         context.Users.Add(user);
         await context.SaveChangesAsync();
 
