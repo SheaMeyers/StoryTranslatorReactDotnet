@@ -38,3 +38,13 @@ export const login = async (Username: string, Password: string) => {
     const json = await response.json()
     return json.apiToken
 }
+
+export const logout = async (apiToken: string, logoutAll: boolean = false) => 
+    await fetch(`/user/logout?logoutAll=${logoutAll}`, { 
+        method: 'POST',
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            'Authorization': apiToken
+          }
+    })
