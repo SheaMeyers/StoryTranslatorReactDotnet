@@ -80,6 +80,7 @@ const SignUpModal = (props: SignUpModalProps) => {
         />
         {error && <p>{error}</p>}
         <Button variant="contained" onClick={handleSubmit}>Submit</Button>
+        <Button variant="contained" onClick={() => props.handleClose()}>Close</Button>
       </Box>
     </Modal>
   );

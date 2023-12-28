@@ -9,4 +9,7 @@
     padding: 25px;
     border: 2px solid black;
     border-radius: 15px;
+    height: 80%;
+    width: 80%;
+    justify-content: space-between;
 }

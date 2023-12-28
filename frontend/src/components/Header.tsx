@@ -1,10 +1,12 @@
 import AppBar from "@mui/material/AppBar"
 import Button from "@mui/material/Button"
-import "../styling/Header.css"
 import { useState } from "react"
 import SignUpModal from "./modals/SignUpModal"
 import LoginModal from "./modals/LoginModal"
 import LogoutModal from "./modals/LogoutModal"
+import ChangePasswordModal from "./modals/ChangePasswordModal"
+import "../styling/Header.css"
+
 
 type HeaderProps = {
   username: string
@@ -17,6 +19,7 @@ const Header = (props: HeaderProps) => {
   const [isSignUpModalOpen, setIsSignUpModalOpen] = useState<boolean>(false)
   const [isLoginModalOpen, setIsLoginModalOpen] = useState<boolean>(false)
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState<boolean>(false)
+  const [isChangePasswordModalOpen, setIsChangePasswordModalOpen] = useState<boolean>(false)
 
   const handleSignUpModalClose = (username: string = "", apiToken: string = "") => {
     if (username && apiToken) props.updateUsernameAndApiToken(username, apiToken)
@@ -28,10 +31,12 @@ const Header = (props: HeaderProps) => {
     setIsLoginModalOpen(false)
   }
 
-  const handleLogoutModalClose = (loggedOut: boolean = false, ) => {
+  const handleLogoutModalClose = (loggedOut: boolean = false) => {
     if (loggedOut) props.updateUsernameAndApiToken('', '')
     setIsLogoutModalOpen(false)
   }
+
+  const handleChangeModalClose = () => setIsChangePasswordModalOpen(false)
 
   return (
     <>
@@ -41,7 +46,7 @@ const Header = (props: HeaderProps) => {
             <Button variant="outlined" className="Header__Button" onClick={() => setIsLogoutModalOpen(true)}>
               Logout
             </Button>
-            <Button variant="outlined" className="Header__Button">
+            <Button variant="outlined" className="Header__Button" onClick={() => setIsChangePasswordModalOpen(true)}>
               Change Password
             </Button>
             <p className="Header__Paragraph">Hello {props.username}</p>
@@ -60,6 +65,7 @@ const Header = (props: HeaderProps) => {
       <SignUpModal isOpen={isSignUpModalOpen} handleClose={handleSignUpModalClose} />
       <LoginModal isOpen={isLoginModalOpen} handleClose={handleLoginModalClose} />
       <LogoutModal isOpen={isLogoutModalOpen} handleClose={handleLogoutModalClose} apiToken={props.apiToken} />
+      <ChangePasswordModal isOpen={isChangePasswordModalOpen} handleClose={handleChangeModalClose} apiToken={props.apiToken}/>
     </>
   )
 }

@@ -54,6 +54,7 @@ const LoginModal = (props: LoginModalProps) => {
         />
         {error && <p>{error}</p>}
         <Button variant="contained" onClick={handleSubmit}>Login</Button>
+        <Button variant="contained" onClick={() => props.handleClose()}>Close</Button>
       </Box>
     </Modal>
   );

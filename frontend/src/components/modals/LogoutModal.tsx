@@ -44,6 +44,7 @@ const LogoutModal = (props: LogoutModalProps) => {
           />
         </FormGroup>
         <Button variant="contained" onClick={handleSubmit}>Logout</Button>
+        <Button variant="contained" onClick={() => props.handleClose()}>Close</Button>
       </Box>
     </Modal>
   );

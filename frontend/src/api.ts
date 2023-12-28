@@ -48,3 +48,17 @@ export const logout = async (apiToken: string, logoutAll: boolean = false) =>
             'Authorization': apiToken
           }
     })
+
+export const changePassword = async (apiToken: string, OldPassword: string, NewPassword: string) => {
+    const response = await fetch(`/user/change-password`, { 
+        method: 'POST',
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            'Authorization': apiToken
+          },
+        body: JSON.stringify({ OldPassword, NewPassword })
+    })
+
+    return response.ok
+}
