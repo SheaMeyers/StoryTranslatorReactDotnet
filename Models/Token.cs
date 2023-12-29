@@ -21,7 +21,5 @@ public class Token: BaseModel
         this.CookieToken = cookieToken;
         this.User = user;
         this.UserId = user.Id;
-        this.Created = DateTime.UtcNow;
-        this.Modified = DateTime.UtcNow;
     }
 }

@@ -15,8 +15,6 @@ public class User: BaseModel
         this.Password = password;
         this.Password = password;
         this.Tokens = new List<Token>();
-        this.Created = DateTime.UtcNow;
-        this.Modified = DateTime.UtcNow;
         this.LastLogin = DateTime.UtcNow;
     }
 
