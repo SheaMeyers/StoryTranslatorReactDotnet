@@ -3,7 +3,7 @@ import Modal from '@mui/material/Modal'
 import TextField from '@mui/material/TextField'
 import Box from '@mui/material/Box'
 import { useState } from 'react'
-import { signUp } from '../../api'
+import { signUp } from '../../UserApi'
 import '../../styling/Modals.css'
 
 

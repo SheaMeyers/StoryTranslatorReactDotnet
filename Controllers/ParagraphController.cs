@@ -22,11 +22,12 @@ public class ParagraphController : ControllerBase
         _db = db;
     }
 
-    [HttpGet("GetFirstParagraph/{bookId}/{translateFrom}/{translateTo}")]
-    public async Task<IActionResult> GetFirstParagraph(Guid bookId, string translateFrom, string translateTo)
+    [HttpGet("GetFirstParagraph/{bookTitle}/{translateFrom}/{translateTo}")]
+    public async Task<IActionResult> GetFirstParagraph(string bookTitle, string translateFrom, string translateTo)
     {
         Paragraph paragraph = await _db.Paragraphs
-                                            .Where(paragraph => paragraph.BookId == bookId)
+                                            // .Include(paragraph => paragraph.Book)
+                                            .Where(paragraph => paragraph.Book.Title == bookTitle)
                                             .OrderBy(paragraph => paragraph.Id)
                                             .FirstAsync();
 
