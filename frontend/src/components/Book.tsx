@@ -1,4 +1,4 @@
-import { useEffect, useReducer, useState } from "react"
+import { useEffect, useState } from "react"
 import { getBooks } from "../apis/BookApi"
 import Select from "@mui/material/Select"
 import MenuItem from "@mui/material/MenuItem"
@@ -6,6 +6,7 @@ import "../styling/Book.css"
 import TextField from "@mui/material/TextField"
 import { Paragraph } from "../types"
 import { getFirstParagraph } from "../apis/ParagraphsApi"
+import Popover from "@mui/material/Popover"
 
 
 
@@ -17,7 +18,7 @@ const Book = () => {
   const [selectedBook, setSelectedBook] = useState<string>('')
   const [translateFromSelector, setTranslateFromSelector] = useState<string>('')
   const [translateToSelector, setTranslateToSelector] = useState<string>('')
-
+  const [isPopoverOpen, setIsPopoverOpen] = useState<boolean>(false)
   const [paragraph, setParagraph] = useState<Paragraph>({
     id: -1,
     translateFrom: '',
@@ -81,15 +82,31 @@ const Book = () => {
         </Select>
       </div>
       <div className="TranslationsContainer">
-        <TextField
+          <TextField
             id="translate-from-text"
             label="Multiline"
             className="TranslationText"
             multiline
             rows={4}
-            disabled={true}
             value={paragraph.translateFrom}
+            onClick={() => setIsPopoverOpen(true)}
           />
+          <Popover
+            id='translate-to-text'
+            open={isPopoverOpen}
+            anchorEl={document.getElementById('translate-from-text')}
+            onClose={() => setIsPopoverOpen(false)}
+            anchorOrigin={{
+              vertical: 'top',
+              horizontal: 'right',
+            }}
+            transformOrigin={{
+              vertical: "bottom",
+              horizontal: "left",
+            }}
+          >
+            {paragraph.translateTo}
+          </Popover>
         </div>
     </>
   )
