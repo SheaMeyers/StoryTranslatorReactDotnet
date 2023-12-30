@@ -26,7 +26,6 @@ public class ParagraphController : ControllerBase
     public async Task<IActionResult> GetFirstParagraph(string bookTitle, string translateFrom, string translateTo)
     {
         Paragraph paragraph = await _db.Paragraphs
-                                            // .Include(paragraph => paragraph.Book)
                                             .Where(paragraph => paragraph.Book.Title == bookTitle)
                                             .OrderBy(paragraph => paragraph.Id)
                                             .FirstAsync();
@@ -44,7 +43,7 @@ public class ParagraphController : ControllerBase
         if (!ModelState.IsValid) return BadRequest();
 
         Paragraph nextParagraph = await _db.Paragraphs
-                                        .Where(paragraph => paragraph.Id == (id+1))
+                                        .Where(paragraph => paragraph.Id == id)
                                         .SingleAsync();
 
         return Ok(new {

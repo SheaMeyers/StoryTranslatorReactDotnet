@@ -2,11 +2,12 @@ import { useEffect, useState } from "react"
 import { getBooks } from "../apis/BookApi"
 import Select from "@mui/material/Select"
 import MenuItem from "@mui/material/MenuItem"
-import "../styling/Book.css"
+import Popover from "@mui/material/Popover"
+import Button from "@mui/material/Button"
 import TextField from "@mui/material/TextField"
 import { Paragraph } from "../types"
-import { getFirstParagraph } from "../apis/ParagraphsApi"
-import Popover from "@mui/material/Popover"
+import { getFirstParagraph, getParagraph } from "../apis/ParagraphsApi"
+import "../styling/Book.css"
 
 
 
@@ -24,8 +25,17 @@ const Book = () => {
     translateFrom: '',
     translateTo: ''
   })
-  
 
+  const handleGetPreviousParagraph = async () => {
+    const nextParagraph = await getParagraph(paragraph.id-1, translateFromSelector, translateToSelector)
+    setParagraph({ ...nextParagraph })
+  }
+
+  const handleGetNextParagraph = async () => {
+    const nextParagraph = await getParagraph(paragraph.id+1, translateFromSelector, translateToSelector)
+    setParagraph({ ...nextParagraph })
+  }
+  
   useEffect(() => {
     const fetchBooks = async () => {
       const retrievedBooks = await getBooks()
@@ -107,6 +117,10 @@ const Book = () => {
           >
             {paragraph.translateTo}
           </Popover>
+          <div className="ButtonContainer">
+            <Button variant="contained" onClick={() => handleGetPreviousParagraph()}>Previous</Button>
+            <Button variant="contained" onClick={() => handleGetNextParagraph()}>Next</Button>
+          </div>
         </div>
     </>
   )
