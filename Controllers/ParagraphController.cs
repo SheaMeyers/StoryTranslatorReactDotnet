@@ -21,6 +21,22 @@ public class ParagraphController : ControllerBase
     {
         _db = db;
     }
+
+    [HttpGet("GetFirstParagraph/{bookId}/{translateFrom}/{translateTo}")]
+    public async Task<IActionResult> GetFirstParagraph(Guid bookId, string translateFrom, string translateTo)
+    {
+        Paragraph nextParagraph = await _db.Paragraphs
+                                            .Where(paragraph => paragraph.BookId == bookId)
+                                            .OrderBy(paragraph => paragraph.Id)
+                                            .FirstAsync();
+
+        return Ok(new { 
+            nextParagraph.Id,
+            TranslateFrom = nextParagraph.GetType().GetProperty(translateFrom)?.GetValue(nextParagraph),
+            TranslateTo = nextParagraph.GetType().GetProperty(translateTo)?.GetValue(nextParagraph)
+        });
+    }
+
     
     [HttpPost("{id}")]
     public async Task<IActionResult> Post(int id, [FromBody] ParagraphData paragraphData)
