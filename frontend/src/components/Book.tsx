@@ -25,7 +25,7 @@ const Book = () => {
   }, [])
 
   return (
-    <>
+    <div className="BookSelectorBar">
       <Select
         labelId="select-book-label"
         id="select-book"
@@ -56,7 +56,7 @@ const Book = () => {
       >
         {languages.map(language => <MenuItem value={language}>{language}</MenuItem>)}
       </Select>
-    </>
+    </div>
   )
 }
 

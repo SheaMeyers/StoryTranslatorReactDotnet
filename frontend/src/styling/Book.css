@@ -1,3 +1,9 @@
+.BookSelectorBar {
+    display: flex;
+    justify-content: space-around;
+    margin: 1vw;
+}
+
 .BookSelector {
     background: white;
 }
