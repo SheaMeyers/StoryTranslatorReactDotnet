@@ -8,6 +8,8 @@ import TextField from "@mui/material/TextField"
 import { Paragraph } from "../types"
 import { getFirstAndLastParagraphId, getFirstParagraph, getParagraph } from "../apis/ParagraphsApi"
 import "../styling/Book.css"
+import ToggleButtonGroup from "@mui/material/ToggleButtonGroup"
+import ToggleButton from "@mui/material/ToggleButton"
 
 
 const Book = () => {
@@ -29,6 +31,8 @@ const Book = () => {
   })
 
   const [isPopoverOpen, setIsPopoverOpen] = useState<boolean>(false)
+
+  const [mode, setMode] = useState<"read" | "write">("read")
 
   const handleGetParagraph = async (id: number) => {
     const nextParagraph = await getParagraph(id, translateFromSelector, translateToSelector)
@@ -92,6 +96,18 @@ const Book = () => {
         </Select>
       </div>
       <div className="TranslationsContainer">
+      <ToggleButtonGroup
+        color="primary"
+        value={mode}
+        exclusive
+        onChange={(_e, newValue: "read" | "write") => setMode(newValue)}
+        aria-label="Mode"
+        className="ToggleButtonGroup"
+      >
+        <ToggleButton value="read">Read</ToggleButton>
+        <ToggleButton value="write">Write</ToggleButton>
+      </ToggleButtonGroup>
+        <div className="TranslationsTextContainer">
           <TextField
             id="translate-from-text"
             label="Multiline"
@@ -117,23 +133,35 @@ const Book = () => {
           >
             {paragraph.translateTo}
           </Popover>
-          <div className="ButtonContainer">
-            <Button 
-              variant="contained" 
-              onClick={() => handleGetParagraph(paragraph.id - 1)}
-              disabled={paragraph.id === firstParagraphId}
-            >
-              Previous
-            </Button>
-            <Button 
-              variant="contained" 
-              onClick={() => handleGetParagraph(paragraph.id + 1)}
-              disabled={paragraph.id === lastParagraphId}
-            >
-              Next
-            </Button>
-          </div>
+          {mode === "write" && 
+            <TextField
+              id="translate-to-text"
+              label="Multiline"
+              className="TranslationText"
+              multiline
+              rows={15}
+              // value={paragraph.translateFrom}
+              // onClick={() => setIsPopoverOpen(true)}
+            />
+          }
         </div>
+        <div className="ButtonContainer">
+          <Button 
+            variant="contained" 
+            onClick={() => handleGetParagraph(paragraph.id - 1)}
+            disabled={paragraph.id === firstParagraphId}
+          >
+            Previous
+          </Button>
+          <Button 
+            variant="contained" 
+            onClick={() => handleGetParagraph(paragraph.id + 1)}
+            disabled={paragraph.id === lastParagraphId}
+          >
+            Next
+          </Button>
+        </div>
+      </div>
     </>
   )
 }

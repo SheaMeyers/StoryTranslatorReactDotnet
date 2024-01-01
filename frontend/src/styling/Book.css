@@ -18,7 +18,14 @@
     padding: 10px;
 }
 
-.TranslationsContainer > .TranslationText {
+.TranslationsTextContainer {
+    display: flex;
+    width: 100%;
+    justify-content: space-evenly;
+    margin: 10px;
+}
+
+.TranslationsTextContainer > .TranslationText {
     background: white;
     border-radius: 5px;
     margin: 10px;
@@ -29,4 +36,8 @@
     width: 100%;
     display: flex;
     justify-content: space-evenly;   
+}
+
+.ToggleButtonGroup {
+    background: white;
 }
