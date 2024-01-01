@@ -97,7 +97,7 @@ const Book = () => {
             label="Multiline"
             className="TranslationText"
             multiline
-            rows={4}
+            rows={15}
             value={paragraph.translateFrom}
             onClick={() => setIsPopoverOpen(true)}
           />

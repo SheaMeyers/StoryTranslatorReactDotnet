@@ -23,4 +23,6 @@ code {
   height: 100%;
   width: 100%;
   background-color: #a6089e;
+  display: flex;
+  flex-direction: column;
 }

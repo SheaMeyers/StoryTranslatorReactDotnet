@@ -15,8 +15,18 @@
     align-items: center;
     justify-content: center;
     flex-direction: column;
+    padding: 10px;
 }
 
-.TranslationText {
+.TranslationsContainer > .TranslationText {
     background: white;
+    border-radius: 5px;
+    margin: 10px;
+    width: 40%;
+}
+
+.ButtonContainer {
+    width: 100%;
+    display: flex;
+    justify-content: space-evenly;   
 }
