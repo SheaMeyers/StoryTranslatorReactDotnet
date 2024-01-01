@@ -95,73 +95,77 @@ const Book = () => {
           {languages.map(language => <MenuItem value={language}>{language}</MenuItem>)}
         </Select>
       </div>
-      <div className="TranslationsContainer">
-      {/* <ToggleButtonGroup
-        color="primary"
-        value={mode}
-        exclusive
-        onChange={(_e, newValue: "read" | "write") => setMode(newValue)}
-        aria-label="Mode"
-        className="ToggleButtonGroup"
-      >
-        <ToggleButton value="read">Read</ToggleButton>
-        <ToggleButton value="write">Write</ToggleButton>
-      </ToggleButtonGroup> */}
-        <div className="TranslationsTextContainer">
-          <TextField
-            id="translate-from-text"
-            label="Multiline"
-            className="TranslationText"
-            multiline
-            rows={15}
-            value={paragraph.translateFrom}
-            onClick={() => setIsPopoverOpen(true)}
-          />
-          <Popover
-            id='translate-to-text'
-            open={isPopoverOpen}
-            anchorEl={document.getElementById('translate-from-text')}
-            onClose={() => setIsPopoverOpen(false)}
-            anchorOrigin={{
-              vertical: 'top',
-              horizontal: 'right',
-            }}
-            transformOrigin={{
-              vertical: "bottom",
-              horizontal: "left",
-            }}
-          >
-            {paragraph.translateTo}
-          </Popover>
-          {mode === "write" && 
+      {selectedBook && translateFromSelector && translateToSelector ?
+        <div className="TranslationsContainer">
+        {/* <ToggleButtonGroup
+          color="primary"
+          value={mode}
+          exclusive
+          onChange={(_e, newValue: "read" | "write") => setMode(newValue)}
+          aria-label="Mode"
+          className="ToggleButtonGroup"
+        >
+          <ToggleButton value="read">Read</ToggleButton>
+          <ToggleButton value="write">Write</ToggleButton>
+        </ToggleButtonGroup> */}
+          <div className="TranslationsTextContainer">
             <TextField
-              id="translate-to-text"
+              id="translate-from-text"
               label="Multiline"
               className="TranslationText"
               multiline
               rows={15}
-              // value={paragraph.translateFrom}
-              // onClick={() => setIsPopoverOpen(true)}
+              value={paragraph.translateFrom}
+              onClick={() => setIsPopoverOpen(true)}
             />
-          }
+            <Popover
+              id='translate-to-text'
+              open={isPopoverOpen}
+              anchorEl={document.getElementById('translate-from-text')}
+              onClose={() => setIsPopoverOpen(false)}
+              anchorOrigin={{
+                vertical: 'top',
+                horizontal: 'right',
+              }}
+              transformOrigin={{
+                vertical: "bottom",
+                horizontal: "left",
+              }}
+            >
+              {paragraph.translateTo}
+            </Popover>
+            {mode === "write" && 
+              <TextField
+                id="translate-to-text"
+                label="Multiline"
+                className="TranslationText"
+                multiline
+                rows={15}
+                // value={paragraph.translateFrom}
+                // onClick={() => setIsPopoverOpen(true)}
+              />
+            }
+          </div>
+          <div className="ButtonContainer">
+            <Button 
+              variant="contained" 
+              onClick={() => handleGetParagraph(paragraph.id - 1)}
+              disabled={paragraph.id === firstParagraphId}
+            >
+              Previous
+            </Button>
+            <Button 
+              variant="contained" 
+              onClick={() => handleGetParagraph(paragraph.id + 1)}
+              disabled={paragraph.id === lastParagraphId}
+            >
+              Next
+            </Button>
+          </div>
         </div>
-        <div className="ButtonContainer">
-          <Button 
-            variant="contained" 
-            onClick={() => handleGetParagraph(paragraph.id - 1)}
-            disabled={paragraph.id === firstParagraphId}
-          >
-            Previous
-          </Button>
-          <Button 
-            variant="contained" 
-            onClick={() => handleGetParagraph(paragraph.id + 1)}
-            disabled={paragraph.id === lastParagraphId}
-          >
-            Next
-          </Button>
-        </div>
-      </div>
+      :
+        <p className="ChooseBookText">Choose book and languages from dropdowns to begin</p>
+      }
     </>
   )
 }

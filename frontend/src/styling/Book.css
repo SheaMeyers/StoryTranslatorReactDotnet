@@ -41,3 +41,8 @@
 .ToggleButtonGroup {
     background: white;
 }
+
+.ChooseBookText {
+    color: white;
+    text-align: center;
+}
