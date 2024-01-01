@@ -6,6 +6,11 @@ export const getFirstParagraph = async (bookTitle: string, translateFrom: string
     return await response.json();
 }
 
+export const getFirstAndLastParagraphId = async (bookTitle: string): Promise<{firstId: number, lastId: number}> => {
+    const response = await fetch(`/paragraph/GetFirstAndLastParagraphId/${bookTitle}`, { method: 'GET'})
+    return await response.json();
+}
+
 export const getParagraph = async (id: number, TranslateFrom: string, TranslateTo: string): Promise<Paragraph> => {
     const response = await fetch(`/paragraph/${id}`, { 
         method: 'POST',

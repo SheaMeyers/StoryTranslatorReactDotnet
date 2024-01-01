@@ -6,9 +6,8 @@ import Popover from "@mui/material/Popover"
 import Button from "@mui/material/Button"
 import TextField from "@mui/material/TextField"
 import { Paragraph } from "../types"
-import { getFirstParagraph, getParagraph } from "../apis/ParagraphsApi"
+import { getFirstAndLastParagraphId, getFirstParagraph, getParagraph } from "../apis/ParagraphsApi"
 import "../styling/Book.css"
-
 
 
 const Book = () => {
@@ -16,23 +15,23 @@ const Book = () => {
   const languages = ['English', 'Spanish', 'French', 'German']
 
   const [books, setBooks] = useState<string[]>([])
+  
   const [selectedBook, setSelectedBook] = useState<string>('')
   const [translateFromSelector, setTranslateFromSelector] = useState<string>('')
   const [translateToSelector, setTranslateToSelector] = useState<string>('')
-  const [isPopoverOpen, setIsPopoverOpen] = useState<boolean>(false)
+
+  const [firstParagraphId, setFirstParagraphId] = useState<number>(-1)
+  const [lastParagraphId, setLastParagraphId] = useState<number>(-1)
   const [paragraph, setParagraph] = useState<Paragraph>({
     id: -1,
     translateFrom: '',
     translateTo: ''
   })
 
-  const handleGetPreviousParagraph = async () => {
-    const nextParagraph = await getParagraph(paragraph.id-1, translateFromSelector, translateToSelector)
-    setParagraph({ ...nextParagraph })
-  }
+  const [isPopoverOpen, setIsPopoverOpen] = useState<boolean>(false)
 
-  const handleGetNextParagraph = async () => {
-    const nextParagraph = await getParagraph(paragraph.id+1, translateFromSelector, translateToSelector)
+  const handleGetParagraph = async (id: number) => {
+    const nextParagraph = await getParagraph(id, translateFromSelector, translateToSelector)
     setParagraph({ ...nextParagraph })
   }
   
@@ -47,9 +46,10 @@ const Book = () => {
   useEffect(() => {
     const fetchFirstParagraph = async () => {
       const paragraph = await getFirstParagraph(selectedBook, translateFromSelector, translateToSelector)
-      setParagraph({
-        ...paragraph
-      })
+      const {firstId, lastId} = await getFirstAndLastParagraphId(selectedBook)
+      setParagraph({ ...paragraph })
+      setFirstParagraphId(firstId)
+      setLastParagraphId(lastId)
     }
     if (selectedBook && translateFromSelector && translateToSelector) {
       fetchFirstParagraph()
@@ -118,8 +118,20 @@ const Book = () => {
             {paragraph.translateTo}
           </Popover>
           <div className="ButtonContainer">
-            <Button variant="contained" onClick={() => handleGetPreviousParagraph()}>Previous</Button>
-            <Button variant="contained" onClick={() => handleGetNextParagraph()}>Next</Button>
+            <Button 
+              variant="contained" 
+              onClick={() => handleGetParagraph(paragraph.id - 1)}
+              disabled={paragraph.id === firstParagraphId}
+            >
+              Previous
+            </Button>
+            <Button 
+              variant="contained" 
+              onClick={() => handleGetParagraph(paragraph.id + 1)}
+              disabled={paragraph.id === lastParagraphId}
+            >
+              Next
+            </Button>
           </div>
         </div>
     </>

@@ -52,4 +52,19 @@ public class ParagraphController : ControllerBase
             TranslateTo = nextParagraph.GetType().GetProperty(paragraphData.TranslateTo)?.GetValue(nextParagraph)
         });
     }
+
+
+    [HttpGet("GetFirstAndLastParagraphId/{bookTitle}")]
+    public async Task<IActionResult> GetFirstAndLastParagraphId(string bookTitle) {
+
+        IQueryable<int>? baseQuery = _db.Paragraphs
+                                            .Where(paragraph => paragraph.Book.Title == bookTitle)
+                                            .OrderBy(paragraph => paragraph.Id)
+                                            .Select(paragraph => paragraph.Id);
+
+        int firstId = await baseQuery.FirstAsync();
+        int lastId = await baseQuery.LastAsync();    
+
+        return Ok(new { firstId, lastId });
+    }
 }
