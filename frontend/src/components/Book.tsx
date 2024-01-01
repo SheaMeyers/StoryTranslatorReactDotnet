@@ -96,7 +96,7 @@ const Book = () => {
         </Select>
       </div>
       <div className="TranslationsContainer">
-      <ToggleButtonGroup
+      {/* <ToggleButtonGroup
         color="primary"
         value={mode}
         exclusive
@@ -106,7 +106,7 @@ const Book = () => {
       >
         <ToggleButton value="read">Read</ToggleButton>
         <ToggleButton value="write">Write</ToggleButton>
-      </ToggleButtonGroup>
+      </ToggleButtonGroup> */}
         <div className="TranslationsTextContainer">
           <TextField
             id="translate-from-text"
