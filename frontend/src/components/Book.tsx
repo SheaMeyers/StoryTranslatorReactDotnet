@@ -10,6 +10,7 @@ import { getFirstAndLastParagraphId, getFirstParagraph, getParagraph } from "../
 import "../styling/Book.css"
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup"
 import ToggleButton from "@mui/material/ToggleButton"
+import { getFirstParagraphIdCookie, getLastParagraphIdCookie, getParagraphCookie, getSelectedBookCookie, getSelectedTranslateFromCookie, getSelectedTranslateToCookie, setFirstParagraphIdCookie, setLastParagraphIdCookie, setParagraphCookie, setSelectedBookCookie, setSelectedTranslateFromCookie, setSelectedTranslateToCookie } from "../cookies"
 
 
 const Book = () => {
@@ -18,25 +19,52 @@ const Book = () => {
 
   const [books, setBooks] = useState<string[]>([])
   
-  const [selectedBook, setSelectedBook] = useState<string>('')
-  const [translateFromSelector, setTranslateFromSelector] = useState<string>('')
-  const [translateToSelector, setTranslateToSelector] = useState<string>('')
+  const [selectedBook, setSelectedBook] = useState<string>(getSelectedBookCookie())
+  const [translateFromSelector, setTranslateFromSelector] = useState<string>(getSelectedTranslateFromCookie())
+  const [translateToSelector, setTranslateToSelector] = useState<string>(getSelectedTranslateToCookie())
 
-  const [firstParagraphId, setFirstParagraphId] = useState<number>(-1)
-  const [lastParagraphId, setLastParagraphId] = useState<number>(-1)
-  const [paragraph, setParagraph] = useState<Paragraph>({
-    id: -1,
-    translateFrom: '',
-    translateTo: ''
-  })
+  const [firstParagraphId, setFirstParagraphId] = useState<number>(getFirstParagraphIdCookie())
+  const [lastParagraphId, setLastParagraphId] = useState<number>(getLastParagraphIdCookie())
+
+  const [paragraph, setParagraph] = useState<Paragraph>(getParagraphCookie())
+
+  const updateSelectedBook = (value: string) => {
+    setSelectedBook(value)
+    setSelectedBookCookie(value)
+  }
+
+  const updateTranslateFromSelector = (value: string) => {
+    setTranslateFromSelector(value)
+    setSelectedTranslateFromCookie(value)
+  }
+
+  const updateTranslateToSelector = (value: string) => {
+    setTranslateToSelector(value)
+    setSelectedTranslateToCookie(value)
+  }
+
+  const updateFirstParagraphId = (value: number) => {
+    setFirstParagraphId(value)
+    setFirstParagraphIdCookie(value)
+  }
+
+  const updateLastParagraphId = (value: number) => {
+    setLastParagraphId(value)
+    setLastParagraphIdCookie(value)
+  }
+
+  const updateParagraph = (value: Paragraph) => {
+    setParagraph(value)
+    setParagraphCookie(value)
+  }
 
   const [isPopoverOpen, setIsPopoverOpen] = useState<boolean>(false)
 
   const [mode, setMode] = useState<"read" | "write">("read")
 
   const handleGetParagraph = async (id: number) => {
-    const nextParagraph = await getParagraph(id, translateFromSelector, translateToSelector)
-    setParagraph({ ...nextParagraph })
+    const paragraph = await getParagraph(id, translateFromSelector, translateToSelector)
+    updateParagraph(paragraph)
   }
   
   useEffect(() => {
@@ -51,15 +79,14 @@ const Book = () => {
     const fetchFirstParagraph = async () => {
       const paragraph = await getFirstParagraph(selectedBook, translateFromSelector, translateToSelector)
       const {firstId, lastId} = await getFirstAndLastParagraphId(selectedBook)
-      setParagraph({ ...paragraph })
-      setFirstParagraphId(firstId)
-      setLastParagraphId(lastId)
+      updateParagraph(paragraph)
+      updateFirstParagraphId(firstId)
+      updateLastParagraphId(lastId)
     }
-    if (selectedBook && translateFromSelector && translateToSelector) {
+    if (selectedBook && translateFromSelector && translateToSelector && paragraph.id === -1) {
       fetchFirstParagraph()
     }
-  }, [selectedBook, translateFromSelector, translateToSelector])
-
+  }, [selectedBook, translateFromSelector, translateToSelector, paragraph])
 
   return (
     <>
@@ -70,7 +97,7 @@ const Book = () => {
           value={selectedBook}
           label="Select Book"
           className="BookSelector"
-          onChange={(e) => setSelectedBook(e.target.value)}
+          onChange={(e) => updateSelectedBook(e.target.value)}
         >
           {books.map(book => <MenuItem value={book}>{book}</MenuItem>)}
         </Select>
@@ -80,7 +107,7 @@ const Book = () => {
           value={translateFromSelector}
           label="Select Book"
           className="BookSelector"
-          onChange={(e) => setTranslateFromSelector(e.target.value)}
+          onChange={(e) => updateTranslateFromSelector(e.target.value)}
         >
           {languages.map(language => <MenuItem value={language}>{language}</MenuItem>)}
         </Select>
@@ -90,7 +117,7 @@ const Book = () => {
           value={translateToSelector}
           label="Select Book"
           className="BookSelector"
-          onChange={(e) => setTranslateToSelector(e.target.value)}
+          onChange={(e) => updateTranslateToSelector(e.target.value)}
         >
           {languages.map(language => <MenuItem value={language}>{language}</MenuItem>)}
         </Select>
