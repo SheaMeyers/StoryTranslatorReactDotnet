@@ -60,5 +60,8 @@ export const changePassword = async (apiToken: string, OldPassword: string, NewP
         body: JSON.stringify({ OldPassword, NewPassword })
     })
 
-    return response.ok
+    if(!response.ok) return ''
+
+    const json = await response.json()
+    return (json as any).apiToken
 }

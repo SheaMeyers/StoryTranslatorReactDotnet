@@ -36,7 +36,9 @@ const Header = (props: HeaderProps) => {
     setIsLogoutModalOpen(false)
   }
 
-  const handleChangeModalClose = () => setIsChangePasswordModalOpen(false)
+  const handleUpdateApiToken = (apiToken: string): void => props.updateUsernameAndApiToken(props.username, apiToken)
+
+  const handleChangePasswordModalClose = () => setIsChangePasswordModalOpen(false)
 
   return (
     <>
@@ -65,7 +67,7 @@ const Header = (props: HeaderProps) => {
       <SignUpModal isOpen={isSignUpModalOpen} handleClose={handleSignUpModalClose} />
       <LoginModal isOpen={isLoginModalOpen} handleClose={handleLoginModalClose} />
       <LogoutModal isOpen={isLogoutModalOpen} handleClose={handleLogoutModalClose} apiToken={props.apiToken} />
-      <ChangePasswordModal isOpen={isChangePasswordModalOpen} handleClose={handleChangeModalClose} apiToken={props.apiToken}/>
+      <ChangePasswordModal isOpen={isChangePasswordModalOpen} handleClose={handleChangePasswordModalClose} apiToken={props.apiToken} handleUpdateApiToken={handleUpdateApiToken}/>
     </>
   )
 }

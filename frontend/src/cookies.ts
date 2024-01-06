@@ -56,3 +56,7 @@ export const getParagraphCookie = (): Paragraph => {
         translateTo: ''
     }
 }
+
+const userTranslationCookieName = 'userTranslationCookie'
+export const setuserTranslationCookie = (value: string): void => setCookie(userTranslationCookieName, value)
+export const getuserTranslationCookie = (): string => getCookie(userTranslationCookieName)

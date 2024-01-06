@@ -10,10 +10,15 @@ import { getFirstAndLastParagraphId, getFirstParagraph, getParagraph } from "../
 import "../styling/Book.css"
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup"
 import ToggleButton from "@mui/material/ToggleButton"
-import { getFirstParagraphIdCookie, getLastParagraphIdCookie, getParagraphCookie, getSelectedBookCookie, getSelectedTranslateFromCookie, getSelectedTranslateToCookie, setFirstParagraphIdCookie, setLastParagraphIdCookie, setParagraphCookie, setSelectedBookCookie, setSelectedTranslateFromCookie, setSelectedTranslateToCookie } from "../cookies"
+import { getFirstParagraphIdCookie, getLastParagraphIdCookie, getParagraphCookie, getSelectedBookCookie, getSelectedTranslateFromCookie, getSelectedTranslateToCookie, getuserTranslationCookie, setFirstParagraphIdCookie, setLastParagraphIdCookie, setParagraphCookie, setSelectedBookCookie, setSelectedTranslateFromCookie, setSelectedTranslateToCookie, setuserTranslationCookie } from "../cookies"
+import { getUserTranslation, postUserTranslation } from "../apis/UserTranslationApi"
 
+type BookProps = {
+  apiToken: string
+  updateApiToken: (apiToken: string) => void
+}
 
-const Book = () => {
+const Book = (props: BookProps) => {
 
   const languages = ['English', 'Spanish', 'French', 'German']
 
@@ -27,6 +32,8 @@ const Book = () => {
   const [lastParagraphId, setLastParagraphId] = useState<number>(getLastParagraphIdCookie())
 
   const [paragraph, setParagraph] = useState<Paragraph>(getParagraphCookie())
+
+  const [userTranslation, setUserTranslation] = useState<string>(getuserTranslationCookie())
 
   const updateSelectedBook = (value: string) => {
     setSelectedBook(value)
@@ -58,12 +65,24 @@ const Book = () => {
     setParagraphCookie(value)
   }
 
+  const updateUserTranslation = (value: string) => {
+    setUserTranslation(value)
+    setuserTranslationCookie(value)
+  }
+
   const [isPopoverOpen, setIsPopoverOpen] = useState<boolean>(false)
 
-  const [mode, setMode] = useState<"read" | "write">("read")
+  const [mode, setMode] = useState<"read" | "write">("write")
 
-  const handleGetParagraph = async (id: number) => {
-    const paragraph = await getParagraph(id, translateFromSelector, translateToSelector)
+  const handleGetParagraph = async (id: number, change: number) => {
+    if (props.apiToken) {
+      const apiToken = await postUserTranslation(props.apiToken, id, translateToSelector, userTranslation)
+      props.updateApiToken(apiToken)
+      const nextUserTranslation = await getUserTranslation(apiToken, id + change, translateToSelector)
+      updateUserTranslation(nextUserTranslation)
+    }
+
+    const paragraph = await getParagraph(id + change, translateFromSelector, translateToSelector)
     updateParagraph(paragraph)
   }
   
@@ -124,7 +143,7 @@ const Book = () => {
       </div>
       {selectedBook && translateFromSelector && translateToSelector ?
         <div className="TranslationsContainer">
-        {/* <ToggleButtonGroup
+        <ToggleButtonGroup
           color="primary"
           value={mode}
           exclusive
@@ -134,7 +153,7 @@ const Book = () => {
         >
           <ToggleButton value="read">Read</ToggleButton>
           <ToggleButton value="write">Write</ToggleButton>
-        </ToggleButtonGroup> */}
+        </ToggleButtonGroup>
           <div className="TranslationsTextContainer">
             <TextField
               id="translate-from-text"
@@ -168,22 +187,22 @@ const Book = () => {
                 className="TranslationText"
                 multiline
                 rows={15}
-                // value={paragraph.translateFrom}
-                // onClick={() => setIsPopoverOpen(true)}
+                value={userTranslation}
+                onChange={(e) => updateUserTranslation(e.target.value)}
               />
             }
           </div>
           <div className="ButtonContainer">
             <Button 
               variant="contained" 
-              onClick={() => handleGetParagraph(paragraph.id - 1)}
+              onClick={() => handleGetParagraph(paragraph.id, -1)}
               disabled={paragraph.id === firstParagraphId}
             >
               Previous
             </Button>
             <Button 
               variant="contained" 
-              onClick={() => handleGetParagraph(paragraph.id + 1)}
+              onClick={() => handleGetParagraph(paragraph.id, 1)}
               disabled={paragraph.id === lastParagraphId}
             >
               Next

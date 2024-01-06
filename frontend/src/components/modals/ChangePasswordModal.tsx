@@ -11,6 +11,7 @@ type ChangePasswordModalProps = {
   isOpen: boolean
   apiToken: string
   handleClose: () => void
+  handleUpdateApiToken: (apiToken: string) => void
 }
 
 
@@ -34,8 +35,13 @@ const ChangePasswordModal = (props: ChangePasswordModalProps) => {
     }
 
     try {
-      const isSuccessful = await changePassword(props.apiToken, oldPassword, newPassword)
-      isSuccessful ? setFeedback('Success!') : setFeedback('Unable to change password.  Please try again')
+      const apiToken = await changePassword(props.apiToken, oldPassword, newPassword)
+      if (apiToken) {
+        props.handleUpdateApiToken(apiToken)
+        setFeedback('Success!')
+      } else {
+        setFeedback('Unable to change password.  Please try again')
+      }
     } catch (e) {
       setFeedback('Unable to change password.  Please try again')
     }

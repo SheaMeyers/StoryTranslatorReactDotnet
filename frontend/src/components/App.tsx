@@ -13,6 +13,8 @@ const App = () => {
     setApiToken(apiToken)
   }
 
+  const updateApiToken = (apiToken: string) => setApiToken(apiToken)
+
   useEffect(() => {
     const fetchData = async () => {
       const [retrievedUsername, retrievedApiToken] = await getUsernameAndToken()
@@ -27,7 +29,7 @@ const App = () => {
   return (
     <>
      <Header apiToken={apiToken} username={username} updateUsernameAndApiToken={updateUsernameAndApiToken} /> 
-     <Book />
+     <Book apiToken={apiToken} updateApiToken={updateApiToken}/>
     </>
   )
 }
