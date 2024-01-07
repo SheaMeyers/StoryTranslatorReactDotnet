@@ -6,15 +6,20 @@ export const getFirstParagraph = async (bookTitle: string, translateFrom: string
     return await response.json();
 }
 
-export const getParagraph = async (id: number, TranslateFrom: string, TranslateTo: string): Promise<Paragraph> => {
-    const response = await fetch(`/paragraph/${id}`, { 
+export const getParagraph = async (CurrentId: number, Change: number, TranslateFrom: string, TranslateTo: string, UserTranslation: string, apiToken: string): Promise<Paragraph & { userTranslation: string, apiToken: string}> => {
+    const response = await fetch('/paragraph', { 
         method: 'POST',
         headers: {
             'Accept': 'application/json',
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'Authorization': apiToken
           },      
-        body: JSON.stringify({ TranslateFrom, TranslateTo })
+        body: JSON.stringify({ CurrentId, Change, TranslateFrom, TranslateTo, UserTranslation })
     })
     
-    return await response.json();
+    var json = await response.json()
+
+    debugger
+
+    return json
 }

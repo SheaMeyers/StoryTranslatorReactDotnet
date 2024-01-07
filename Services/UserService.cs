@@ -33,6 +33,7 @@ public class UserService
     public async Task<User?> GetUser(string apiToken, string cookieToken)
     {
         Token? token = await _db.Tokens
+                                    .Include(token => token.User)
                                     .Where(token => 
                                             token.ApiToken == apiToken && 
                                             token.CookieToken == cookieToken)
@@ -40,8 +41,6 @@ public class UserService
 
         if (token == null) return null;
 
-        User? user = await _db.Users.Where(user => user.Tokens.Contains(token)).SingleOrDefaultAsync();
-
-        return user;
+        return token.User;
     }
 }

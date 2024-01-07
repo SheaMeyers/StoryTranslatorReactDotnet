@@ -27,7 +27,6 @@ import {
   setSelectedTranslateToCookie, 
   setuserTranslationCookie 
 } from "../cookies"
-import { getUserTranslation, postUserTranslation } from "../apis/UserTranslationApi"
 import "../styling/Book.css"
 
 
@@ -104,16 +103,10 @@ const Book = (props: BookProps) => {
   const [mode, setMode] = useState<"read" | "write">(getInitialMode())
 
   const handleGetParagraph = async (id: number, change: number) => {
-    if (props.apiToken && userTranslation) {
-      const apiToken = await postUserTranslation(props.apiToken, id, translateToSelector, userTranslation)
-      props.updateApiToken(apiToken)
-      const nextUserTranslation = await getUserTranslation(apiToken, id + change, translateToSelector)
-      updateUserTranslation(nextUserTranslation)
-    }
-
-    // TODO Add logic of above two api calls to this api call
-    const paragraph = await getParagraph(id + change, translateFromSelector, translateToSelector)
-    updateParagraph(paragraph)
+    const result = await getParagraph(id, change, translateFromSelector, translateToSelector, userTranslation, props.apiToken)
+    updateParagraph(result)
+    updateUserTranslation(result.userTranslation)
+    if (result.apiToken) props.updateApiToken(result.apiToken)
   }
   
   useEffect(() => {

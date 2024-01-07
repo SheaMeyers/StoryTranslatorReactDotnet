@@ -14,6 +14,26 @@ public class TokenService
         _db = db;
     }
 
+    public async Task<Token?> GetToken(HttpRequest request)
+    {
+        string? cookieToken = request.Cookies["cookieToken"];
+        string? apiToken = request.Headers.Authorization;
+
+        if (cookieToken == null || apiToken == null) return null;
+
+        var isCookieTokenValid = await Tokens.ValidateToken(cookieToken);
+        var isApiTokenValid = await Tokens.ValidateToken(apiToken);
+
+        if (isCookieTokenValid == false || isApiTokenValid == false) return null;
+
+        return await _db.Tokens
+                        .Include(token => token.User)
+                        .Where(token => 
+                                token.ApiToken == apiToken && 
+                                token.CookieToken == cookieToken)
+                        .SingleOrDefaultAsync();
+    }
+
     public async Task Logout(string apiToken, string cookieToken)
     {
         Token? token = await _db.Tokens
