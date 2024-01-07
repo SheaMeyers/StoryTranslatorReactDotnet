@@ -61,15 +61,15 @@ const Book = (props: BookProps) => {
   }
 
   const updateTranslateFromSelector = (value: string) => {
+    handleGetParagraph(paragraph.id, 0)
     setTranslateFromSelector(value)
     setSelectedTranslateFromCookie(value)
-    updateParagraph({...paragraph,  translateFrom: value})
   }
 
   const updateTranslateToSelector = (value: string) => {
+    handleGetParagraph(paragraph.id, 0)
     setTranslateToSelector(value)
     setSelectedTranslateToCookie(value)
-    updateParagraph({...paragraph,  translateTo: value})
   }
 
   const updateFirstParagraphId = (value: number) => {
