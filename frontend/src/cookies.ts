@@ -60,3 +60,8 @@ export const getParagraphCookie = (): Paragraph => {
 const userTranslationCookieName = 'userTranslationCookie'
 export const setuserTranslationCookie = (value: string): void => setCookie(userTranslationCookieName, value)
 export const getuserTranslationCookie = (): string => getCookie(userTranslationCookieName)
+
+
+const modeCookieName = 'modeCookie'
+export const setModeCookie = (value: string): void => setCookie(modeCookieName, value)
+export const getModeCookie = (): string => getCookie(modeCookieName)

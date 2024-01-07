@@ -7,11 +7,29 @@ import Button from "@mui/material/Button"
 import TextField from "@mui/material/TextField"
 import { Paragraph } from "../types"
 import { getFirstAndLastParagraphId, getFirstParagraph, getParagraph } from "../apis/ParagraphsApi"
-import "../styling/Book.css"
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup"
 import ToggleButton from "@mui/material/ToggleButton"
-import { getFirstParagraphIdCookie, getLastParagraphIdCookie, getParagraphCookie, getSelectedBookCookie, getSelectedTranslateFromCookie, getSelectedTranslateToCookie, getuserTranslationCookie, setFirstParagraphIdCookie, setLastParagraphIdCookie, setParagraphCookie, setSelectedBookCookie, setSelectedTranslateFromCookie, setSelectedTranslateToCookie, setuserTranslationCookie } from "../cookies"
+import { 
+  getFirstParagraphIdCookie, 
+  getLastParagraphIdCookie, 
+  getModeCookie, 
+  getParagraphCookie, 
+  getSelectedBookCookie, 
+  getSelectedTranslateFromCookie, 
+  getSelectedTranslateToCookie, 
+  getuserTranslationCookie, 
+  setFirstParagraphIdCookie, 
+  setLastParagraphIdCookie, 
+  setModeCookie, 
+  setParagraphCookie, 
+  setSelectedBookCookie, 
+  setSelectedTranslateFromCookie, 
+  setSelectedTranslateToCookie, 
+  setuserTranslationCookie 
+} from "../cookies"
 import { getUserTranslation, postUserTranslation } from "../apis/UserTranslationApi"
+import "../styling/Book.css"
+
 
 type BookProps = {
   apiToken: string
@@ -72,7 +90,19 @@ const Book = (props: BookProps) => {
 
   const [isPopoverOpen, setIsPopoverOpen] = useState<boolean>(false)
 
-  const [mode, setMode] = useState<"read" | "write">("write")
+  const getInitialMode = () => {
+    const cookieMode = getModeCookie()
+    if (cookieMode === "read" || cookieMode === "write") return cookieMode
+
+    return window.screen.width > 415 ? "write" : "read"
+  }
+
+  const updateMode = (mode: "read" | "write") => {
+    setMode(mode)
+    setModeCookie(mode)
+  }
+
+  const [mode, setMode] = useState<"read" | "write">(getInitialMode())
 
   const handleGetParagraph = async (id: number, change: number) => {
     if (props.apiToken) {
@@ -147,7 +177,7 @@ const Book = (props: BookProps) => {
           color="primary"
           value={mode}
           exclusive
-          onChange={(_e, newValue: "read" | "write") => setMode(newValue)}
+          onChange={(_e, newValue: "read" | "write") => updateMode(newValue)}
           aria-label="Mode"
           className="ToggleButtonGroup"
         >
