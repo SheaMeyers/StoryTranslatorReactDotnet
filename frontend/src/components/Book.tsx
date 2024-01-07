@@ -6,7 +6,7 @@ import Popover from "@mui/material/Popover"
 import Button from "@mui/material/Button"
 import TextField from "@mui/material/TextField"
 import { Paragraph } from "../types"
-import { getFirstAndLastParagraphId, getFirstParagraph, getParagraph } from "../apis/ParagraphsApi"
+import { getFirstParagraph, getParagraph } from "../apis/ParagraphsApi"
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup"
 import ToggleButton from "@mui/material/ToggleButton"
 import { 
@@ -41,6 +41,8 @@ const Book = (props: BookProps) => {
   const languages = ['English', 'Spanish', 'French', 'German']
 
   const [books, setBooks] = useState<string[]>([])
+
+  const [isPopoverOpen, setIsPopoverOpen] = useState<boolean>(false)
   
   const [selectedBook, setSelectedBook] = useState<string>(getSelectedBookCookie())
   const [translateFromSelector, setTranslateFromSelector] = useState<string>(getSelectedTranslateFromCookie())
@@ -88,8 +90,6 @@ const Book = (props: BookProps) => {
     setuserTranslationCookie(value)
   }
 
-  const [isPopoverOpen, setIsPopoverOpen] = useState<boolean>(false)
-
   const getInitialMode = () => {
     const cookieMode = getModeCookie()
     if (cookieMode === "read" || cookieMode === "write") return cookieMode
@@ -127,11 +127,12 @@ const Book = (props: BookProps) => {
   useEffect(() => {
     const fetchFirstParagraph = async () => {
       const paragraph = await getFirstParagraph(selectedBook, translateFromSelector, translateToSelector)
-      const {firstId, lastId} = await getFirstAndLastParagraphId(selectedBook)
+
       updateParagraph(paragraph)
-      updateFirstParagraphId(firstId)
-      updateLastParagraphId(lastId)
+      updateFirstParagraphId(paragraph.firstId)
+      updateLastParagraphId(paragraph.lastId)
     }
+    
     if (selectedBook && translateFromSelector && translateToSelector && paragraph.id === -1) {
       fetchFirstParagraph()
     }

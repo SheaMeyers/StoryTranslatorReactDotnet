@@ -37,15 +37,20 @@ public class ParagraphController : ControllerBase
     [HttpGet("GetFirstParagraph/{bookTitle}/{translateFrom}/{translateTo}")]
     public async Task<IActionResult> GetFirstParagraph(string bookTitle, string translateFrom, string translateTo)
     {
-        Paragraph paragraph = await _db.Paragraphs
-                                            .Where(paragraph => paragraph.Book.Title == bookTitle)
-                                            .OrderBy(paragraph => paragraph.Id)
-                                            .FirstAsync();
+        var baseQuery = _db.Paragraphs
+                            .Where(paragraph => paragraph.Book.Title == bookTitle)
+                            .OrderBy(paragraph => paragraph.Id); 
+
+        Paragraph paragraph = await baseQuery.FirstAsync();
+        int firstId = await baseQuery.Select(paragraph => paragraph.Id).FirstAsync();
+        int lastId = await baseQuery.Select(paragraph => paragraph.Id).LastAsync();
 
         return Ok(new { 
             paragraph.Id,
             TranslateFrom = paragraph.GetType().GetProperty(translateFrom)?.GetValue(paragraph),
-            TranslateTo = paragraph.GetType().GetProperty(translateTo)?.GetValue(paragraph)
+            TranslateTo = paragraph.GetType().GetProperty(translateTo)?.GetValue(paragraph),
+            FirstId = firstId,
+            LastId = lastId
         });
     }
 
@@ -63,21 +68,6 @@ public class ParagraphController : ControllerBase
             TranslateFrom = nextParagraph.GetType().GetProperty(paragraphData.TranslateFrom)?.GetValue(nextParagraph),
             TranslateTo = nextParagraph.GetType().GetProperty(paragraphData.TranslateTo)?.GetValue(nextParagraph)
         });
-    }
-
-
-    [HttpGet("GetFirstAndLastParagraphId/{bookTitle}")]
-    public async Task<IActionResult> GetFirstAndLastParagraphId(string bookTitle) {
-
-        IQueryable<int>? baseQuery = _db.Paragraphs
-                                            .Where(paragraph => paragraph.Book.Title == bookTitle)
-                                            .OrderBy(paragraph => paragraph.Id)
-                                            .Select(paragraph => paragraph.Id);
-
-        int firstId = await baseQuery.FirstAsync();
-        int lastId = await baseQuery.LastAsync();    
-
-        return Ok(new { firstId, lastId });
     }
 
     [HttpPost("SetUserParagraphTranslation/{paragraphId}")]
