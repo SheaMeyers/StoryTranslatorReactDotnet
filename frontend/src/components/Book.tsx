@@ -93,7 +93,6 @@ const Book = (props: BookProps) => {
   const getInitialMode = () => {
     const cookieMode = getModeCookie()
     if (cookieMode === "read" || cookieMode === "write") return cookieMode
-
     return window.screen.width > 415 ? "write" : "read"
   }
 
@@ -105,13 +104,14 @@ const Book = (props: BookProps) => {
   const [mode, setMode] = useState<"read" | "write">(getInitialMode())
 
   const handleGetParagraph = async (id: number, change: number) => {
-    if (props.apiToken) {
+    if (props.apiToken && userTranslation) {
       const apiToken = await postUserTranslation(props.apiToken, id, translateToSelector, userTranslation)
       props.updateApiToken(apiToken)
       const nextUserTranslation = await getUserTranslation(apiToken, id + change, translateToSelector)
       updateUserTranslation(nextUserTranslation)
     }
 
+    // TODO Add logic of above two api calls to this api call
     const paragraph = await getParagraph(id + change, translateFromSelector, translateToSelector)
     updateParagraph(paragraph)
   }
@@ -132,7 +132,8 @@ const Book = (props: BookProps) => {
       updateFirstParagraphId(paragraph.firstId)
       updateLastParagraphId(paragraph.lastId)
     }
-    
+
+    // TODO Fix paragraph.id === -1 check
     if (selectedBook && translateFromSelector && translateToSelector && paragraph.id === -1) {
       fetchFirstParagraph()
     }
@@ -188,7 +189,7 @@ const Book = (props: BookProps) => {
           <div className="TranslationsTextContainer">
             <TextField
               id="translate-from-text"
-              label="Multiline"
+              label="Click to see translation"
               className="TranslationText"
               multiline
               rows={15}
@@ -214,8 +215,9 @@ const Book = (props: BookProps) => {
             {mode === "write" && 
               <TextField
                 id="translate-to-text"
-                label="Multiline"
+                label={!props.apiToken ? "Log in or sign up to add your translation" : "Your translation"}
                 className="TranslationText"
+                disabled={!props.apiToken}
                 multiline
                 rows={15}
                 value={userTranslation}
