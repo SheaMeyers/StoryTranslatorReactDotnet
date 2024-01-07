@@ -57,16 +57,19 @@ const Book = (props: BookProps) => {
   const updateSelectedBook = (value: string) => {
     setSelectedBook(value)
     setSelectedBookCookie(value)
+    updateParagraph({...paragraph,  id: -1})
   }
 
   const updateTranslateFromSelector = (value: string) => {
     setTranslateFromSelector(value)
     setSelectedTranslateFromCookie(value)
+    updateParagraph({...paragraph,  translateFrom: value})
   }
 
   const updateTranslateToSelector = (value: string) => {
     setTranslateToSelector(value)
     setSelectedTranslateToCookie(value)
+    updateParagraph({...paragraph,  translateTo: value})
   }
 
   const updateFirstParagraphId = (value: number) => {
