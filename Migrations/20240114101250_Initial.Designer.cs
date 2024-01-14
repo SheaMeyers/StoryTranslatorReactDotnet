@@ -12,8 +12,8 @@ using StoryTranslatorReactDotnet.Database;
 namespace StoryTranslatorReactDotnet.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20231229135112_AddBooksAndParagraphs")]
-    partial class AddBooksAndParagraphs
+    [Migration("20240114101250_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -27,9 +27,11 @@ namespace StoryTranslatorReactDotnet.Migrations
 
             modelBuilder.Entity("StoryTranslatorReactDotnet.Models.Book", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("Created")
                         .HasColumnType("timestamp with time zone");
@@ -54,11 +56,8 @@ namespace StoryTranslatorReactDotnet.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<Guid>("BookId")
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime>("Created")
-                        .HasColumnType("timestamp with time zone");
+                    b.Property<int>("BookId")
+                        .HasColumnType("integer");
 
                     b.Property<string>("English")
                         .IsRequired()
@@ -71,9 +70,6 @@ namespace StoryTranslatorReactDotnet.Migrations
                     b.Property<string>("German")
                         .IsRequired()
                         .HasColumnType("text");
-
-                    b.Property<DateTime>("Modified")
-                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Spanish")
                         .IsRequired()
@@ -147,6 +143,49 @@ namespace StoryTranslatorReactDotnet.Migrations
                     b.ToTable("Users");
                 });
 
+            modelBuilder.Entity("StoryTranslatorReactDotnet.Models.UserTranslatedParagraph", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("Created")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("English")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("French")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("German")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("Modified")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("ParagraphId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Spanish")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ParagraphId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("UserTranslatedParagraphs");
+                });
+
             modelBuilder.Entity("StoryTranslatorReactDotnet.Models.Paragraph", b =>
                 {
                     b.HasOne("StoryTranslatorReactDotnet.Models.Book", "Book")
@@ -165,6 +204,25 @@ namespace StoryTranslatorReactDotnet.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("StoryTranslatorReactDotnet.Models.UserTranslatedParagraph", b =>
+                {
+                    b.HasOne("StoryTranslatorReactDotnet.Models.Paragraph", "Paragraph")
+                        .WithMany()
+                        .HasForeignKey("ParagraphId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("StoryTranslatorReactDotnet.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Paragraph");
 
                     b.Navigation("User");
                 });

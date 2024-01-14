@@ -6,7 +6,7 @@ const setCookie = (cookieName: string, cookieValue: string, days: number = 365):
     const d = new Date();
     d.setTime(d.getTime() + (days*24*60*60*1000));
     let expires = "expires="+ d.toUTCString();
-    document.cookie = cookieName + "=" + cookieValue + ";" + expires + ";path=/";
+    document.cookie = cookieName + "=" + encodeURIComponent(cookieValue) + ";" + expires + ";path=/";
 }
 
 const getCookie = (cname: string): string => {
@@ -18,7 +18,7 @@ const getCookie = (cname: string): string => {
         c = c.substring(1);
       }
       if (c.indexOf(name) === 0) {
-        return c.substring(name.length, c.length);
+        return decodeURIComponent(c.substring(name.length, c.length));
       }
     }
     return "";
@@ -48,6 +48,8 @@ const paragraphCookieName = 'paragraphCookie'
 export const setParagraphCookie = (value: Paragraph): void => setCookie(paragraphCookieName, JSON.stringify(value))
 export const getParagraphCookie = (): Paragraph => {
     var value = getCookie(paragraphCookieName)
+    console.log('getParagraphCookie value')
+    console.log(value)
     if (value) return JSON.parse(value)
 
     return {

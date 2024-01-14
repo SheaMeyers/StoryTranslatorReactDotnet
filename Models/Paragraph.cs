@@ -3,9 +3,7 @@ namespace StoryTranslatorReactDotnet.Models;
 public class Paragraph
 {
     public int Id {get; set;}
-    public DateTime Created {get; set;}
-    public DateTime Modified {get; set;}
-    public Guid BookId {get; set;}
+    public int BookId {get; set;}
     public Book Book {get; set;}
     public string English {get; set;}
     public string Spanish {get; set;}

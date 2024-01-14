@@ -24,9 +24,11 @@ namespace StoryTranslatorReactDotnet.Migrations
 
             modelBuilder.Entity("StoryTranslatorReactDotnet.Models.Book", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("Created")
                         .HasColumnType("timestamp with time zone");
@@ -51,11 +53,8 @@ namespace StoryTranslatorReactDotnet.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<Guid>("BookId")
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime>("Created")
-                        .HasColumnType("timestamp with time zone");
+                    b.Property<int>("BookId")
+                        .HasColumnType("integer");
 
                     b.Property<string>("English")
                         .IsRequired()
@@ -68,9 +67,6 @@ namespace StoryTranslatorReactDotnet.Migrations
                     b.Property<string>("German")
                         .IsRequired()
                         .HasColumnType("text");
-
-                    b.Property<DateTime>("Modified")
-                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Spanish")
                         .IsRequired()
