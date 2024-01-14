@@ -186,7 +186,7 @@ const Book = (props: BookProps) => {
               label="Click to see translation"
               className="TranslationText"
               multiline
-              rows={15}
+              rows={12}
               value={paragraph.translateFrom}
               onClick={() => setIsPopoverOpen(true)}
             />
@@ -213,7 +213,7 @@ const Book = (props: BookProps) => {
                 className="TranslationText"
                 disabled={!props.apiToken}
                 multiline
-                rows={15}
+                rows={12}
                 value={userTranslation}
                 onChange={(e) => updateUserTranslation(e.target.value)}
               />
