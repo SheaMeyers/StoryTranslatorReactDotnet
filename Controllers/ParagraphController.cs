@@ -1,18 +1,11 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using StoryTranslatorReactDotnet.Database;
-using StoryTranslatorReactDotnet.Helpers;
 using StoryTranslatorReactDotnet.Models;
 using StoryTranslatorReactDotnet.Services;
 
 namespace ReactDotnetCsvUploader.Controllers;
 
-// TODO Remove!!
-public struct UserTranslatedParagraphData
-{
-    public string Language {get; set;}
-    public string Value {get; set;}
-}
 
 public struct ParagraphData
 {
