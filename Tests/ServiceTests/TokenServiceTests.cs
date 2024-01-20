@@ -3,10 +3,10 @@ using StoryTranslatorReactDotnet.Models;
 using StoryTranslatorReactDotnet.Services;
 using Xunit;
 
-public class TokenServiceTests : IClassFixture<TestDatabaseFixture>
+public class TestLogoutTokenServiceTests : IClassFixture<TestDatabaseFixture>
 {
     public TestDatabaseFixture _fixture { get; }
-    public TokenServiceTests(TestDatabaseFixture fixture) => _fixture = fixture;
+    public TestLogoutTokenServiceTests(TestDatabaseFixture fixture) => _fixture = fixture;
 
     [Fact]
     public async Task TestLogoutRemovesToken()
@@ -41,6 +41,12 @@ public class TokenServiceTests : IClassFixture<TestDatabaseFixture>
         
         Assert.Single(context.Tokens.Where(token => token.ApiToken == "fakeApiToken2" && token.CookieToken == "fakeCookieToken2"));
     }
+}
+
+public class TestRegenerateTokenServiceTests : IClassFixture<TestDatabaseFixture>
+{
+    public TestDatabaseFixture _fixture { get; }
+    public TestRegenerateTokenServiceTests(TestDatabaseFixture fixture) => _fixture = fixture;
 
     [Fact]
     public async Task TestRegenerateUpdatesTokenValues()
