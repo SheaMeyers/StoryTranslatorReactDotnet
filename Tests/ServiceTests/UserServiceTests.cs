@@ -47,7 +47,7 @@ public class UserServiceTests : IClassFixture<TestDatabaseFixture>
         ApplicationDbContext context = _fixture.CreateContext();
         UserService userService = _fixture.CreateUserService(context);
 
-        User user = new User("userLogin3", "password", "fakeApiToken2", "fakeCookieToken2");
+        User user = new User("userLogin3", "password", "userFakeApiToken2", "userFakeCookieToken2");
         context.Users.Add(user);
         await context.SaveChangesAsync();
 
