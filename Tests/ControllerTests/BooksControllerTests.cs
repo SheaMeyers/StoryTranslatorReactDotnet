@@ -18,7 +18,7 @@ public class GetBooksTests : IClassFixture<TestDatabaseFixture>
     public GetBooksTests(TestDatabaseFixture fixture) => _fixture = fixture;
 
     [Fact]
-    public async Task TestGetBooksReturns()
+    public async Task TestGetBooksReturnsBooks()
     {
         ApplicationDbContext context = _fixture.CreateContext();
         context.Books.Add(new Book("Title 1"));
