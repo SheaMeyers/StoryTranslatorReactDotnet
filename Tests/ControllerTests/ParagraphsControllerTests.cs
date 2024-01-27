@@ -1,11 +1,6 @@
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Query.Internal;
 using ReactDotnetCsvUploader.Controllers;
-using StoryTranslatorReactDotnet.Controllers;
 using StoryTranslatorReactDotnet.Database;
-using StoryTranslatorReactDotnet.Helpers;
 using StoryTranslatorReactDotnet.Models;
 using StoryTranslatorReactDotnet.Services;
 using Xunit;
@@ -27,9 +22,8 @@ public class GetFirstParagraphTests : IClassFixture<TestDatabaseFixture>
         context.Paragraphs.Add(paragraph);
         context.Paragraphs.Add(new Paragraph("English 2", "Spanish 2", "French 2", "German 2", book));
         await context.SaveChangesAsync();
-        UserService userService = _fixture.CreateUserService(context);
         TokenService tokenService = _fixture.CreateTokenService(context);
-        ParagraphController controller = new ParagraphController(context, tokenService, userService);
+        ParagraphController controller = new ParagraphController(context, tokenService);
         
         IActionResult? response = await controller.GetFirstParagraph("Title 1", "English", "German");
 
@@ -44,3 +38,41 @@ public class GetFirstParagraphTests : IClassFixture<TestDatabaseFixture>
     }
 }
 
+
+public class GetNextParagraphTests : IClassFixture<TestDatabaseFixture>
+{
+    public TestDatabaseFixture _fixture { get; }
+    public GetNextParagraphTests(TestDatabaseFixture fixture) => _fixture = fixture;
+
+    public async Task TestGetNextParagraphWhenNotSignedIn()
+    {
+        ApplicationDbContext context = _fixture.CreateContext();
+        Book book = new Book("Title 1");
+        Paragraph paragraph = new Paragraph("English", "Spanish", "French", "German", book);
+        context.Books.Add(book);
+        context.Paragraphs.Add(paragraph);
+        context.Paragraphs.Add(new Paragraph("English 2", "Spanish 2", "French 2", "German 2", book));
+        await context.SaveChangesAsync();
+        TokenService tokenService = _fixture.CreateTokenService(context);
+        ParagraphController controller = new ParagraphController(context, tokenService);
+
+        ParagraphData paragraphData = new ParagraphData
+        {
+            CurrentId=1,
+            Change=1,
+            TranslateFrom="English",
+            TranslateTo="Spanish"
+        };
+
+
+        IActionResult? response = await controller.GetNextParagraph(paragraphData);
+        OkObjectResult? responseResult = Assert.IsType<OkObjectResult>(response);
+        dynamic? responseValue = responseResult.Value;
+
+        Assert.Equal(2, responseValue?.Id);
+        Assert.Equal("English 2", responseValue?.TranslateFrom);
+        Assert.Equal("German 2", responseValue?.TranslateTo);
+        Assert.Equal("", responseValue?.UserTranslation);
+        Assert.Equal("", responseValue?.ApiToken);
+    }
+}

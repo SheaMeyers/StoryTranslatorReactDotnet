@@ -21,13 +21,11 @@ public class ParagraphController : ControllerBase
 {
     private readonly ApplicationDbContext _db;
     private readonly TokenService _tokenService;
-    private readonly UserService _userService;
 
-    public ParagraphController(ApplicationDbContext db, TokenService tokenService, UserService userService)
+    public ParagraphController(ApplicationDbContext db, TokenService tokenService)
     {
         _db = db;
         _tokenService = tokenService;
-        _userService = userService;
     }
 
     [HttpGet("GetFirstParagraph/{bookTitle}/{translateFrom}/{translateTo}")]
@@ -76,7 +74,7 @@ public class ParagraphController : ControllerBase
     }
     
     [HttpPost]
-    public async Task<IActionResult> Post([FromBody] ParagraphData paragraphData)
+    public async Task<IActionResult> GetNextParagraph([FromBody] ParagraphData paragraphData)
     {
         if (!ModelState.IsValid) return BadRequest();
 
