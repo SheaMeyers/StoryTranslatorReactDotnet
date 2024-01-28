@@ -54,6 +54,14 @@ const Book = (props: BookProps) => {
 
   const [userTranslation, setUserTranslation] = useState<string>(getuserTranslationCookie())
 
+  const getInitialMode = () => {
+    const cookieMode = getModeCookie()
+    if (cookieMode === "read" || cookieMode === "write") return cookieMode
+    return window.screen.width > 415 ? "write" : "read"
+  }
+
+  const [mode, setMode] = useState<"read" | "write">(getInitialMode())
+
   const updateSelectedBook = (value: string) => {
     setSelectedBook(value)
     setSelectedBookCookie(value)
@@ -90,18 +98,10 @@ const Book = (props: BookProps) => {
     setuserTranslationCookie(value)
   }
 
-  const getInitialMode = () => {
-    const cookieMode = getModeCookie()
-    if (cookieMode === "read" || cookieMode === "write") return cookieMode
-    return window.screen.width > 415 ? "write" : "read"
-  }
-
   const updateMode = (mode: "read" | "write") => {
     setMode(mode)
     setModeCookie(mode)
   }
-
-  const [mode, setMode] = useState<"read" | "write">(getInitialMode())
 
   const handleGetParagraph = async (id: number, change: number) => {
     const result = await getParagraph(id, change, translateFromSelector, translateToSelector, userTranslation, props.apiToken)
@@ -127,7 +127,6 @@ const Book = (props: BookProps) => {
       updateLastParagraphId(paragraph.lastId)
     }
 
-    // TODO Fix paragraph.id === -1 check
     if (selectedBook && translateFromSelector && translateToSelector && paragraph.id === -1) {
       fetchFirstParagraph()
     }
