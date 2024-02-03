@@ -35,4 +35,22 @@ app.UseAuthorization();
 
 app.MapControllers();
 
+// Ensure no pending migrations
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+
+    var context = services.GetRequiredService<ApplicationDbContext>();
+    if (context.Database.GetPendingMigrations().Any())
+    {
+        context.Database.Migrate();
+    }
+}
+
+if (builder.Configuration.GetValue<bool>("InitializeData")) {
+    using var scope = app.Services.CreateScope();
+    var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    InitializeData.CreateInitialBookData(db);
+}
+
 app.Run();
