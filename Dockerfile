@@ -4,8 +4,12 @@ WORKDIR /App
 # Copy everything
 COPY . ./
 
+RUN apt-get update && apt-get upgrade -y && \
+    apt-get install -y nodejs \
+    npm
+
 # Build frontend
-RUN cd frontend; npm run build; cd ..
+RUN cd frontend; npm install; npm run build; cd ..
 
 # Restore as distinct layers
 RUN dotnet restore
