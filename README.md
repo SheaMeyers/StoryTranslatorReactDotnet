@@ -7,7 +7,9 @@ This project uses C#/Dotnet for the backend and React/TypeScript for the fronten
 ## Running
 
 0. This project uses postgresql so it's assumed you have this setup.  If not this will need to be done first.
-1. After cloning this project add the necessary postgres database and user in the appsettings or update the appsettings file.
+Create a database and a user with the password with the values `storytranslatorreactdotnet` for each.
+1. After cloning this project ensure the necessary database and database user are set up or update the appsettings 
+files with the correct settings for the database you setup
 2. Run `dotnet ef database update` to ensure the migrations run to setup the database.
 3. Go into the `frontend` folder and run `npm install` and then `npm run build` to build the react files.
 4. 
@@ -16,8 +18,12 @@ This project uses C#/Dotnet for the backend and React/TypeScript for the fronten
 
 ## Running with Docker
 
-This project does container a Dockerfile and docker-compose.yml.  To run the project you can simply run `docker compose up` in order to run the project.
+This project does container a Dockerfile and docker-compose.yml.  To run the project you can simply run `docker compose up` in order to run the project and skip the steps above.
 
 ## Initialized Data
 
 This project will add initial test data by default to help demonstrate the functionality of this application.  To turn this off set `InitializeData` in the `appsettings.json` files
+
+## Unit tests
+
+This project contains unit tests.  To run them first create a database `storytranslatorreactdotnettest` which the tests will use and then run `dotnet test` to run the tests.
